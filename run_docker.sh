@@ -6,7 +6,7 @@ source ./misc/.params
 xhost + local:
 
 #check if correct directory paths are provided
-if [ -z "$src_folder" ] || [ -z "$vscode_folder" ];
+if [ -z "$src_folder" ] || [ -z "$vscode_folder" ] || [ -z "$requirements_file" ];
 then
     echo "Please provide all directory paths in the ./misc/.params file!"
     exit
@@ -16,7 +16,6 @@ then
     echo "Please make sure you provide directories that exist."
     exit
 fi
-
 
 #if the git repository exists and it is not shared promt the user to make it shared
 if [[ -e ".git" ]];
@@ -69,8 +68,9 @@ else
         --env NVIDIA_VISIBLE_DEVICES=all \
         --env NVIDIA_DRIVER_CAPABILITIES=all \
         --volume /tmp/.X11-unix:/tmp/.X11-unix \
-        --volume ${src_folder}:/home/appuser/spot_detect_and_follow/src \
+        --volume ${src_folder}:/home/appuser/src \
         --volume ${vscode_folder}:/home/appuser/.vscode \
+        --volume ${requirements_file}:/home/appuser/requirements.txt \
         --network host \
         --interactive \
         --privileged \

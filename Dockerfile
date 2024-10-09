@@ -35,7 +35,9 @@ RUN groupadd -g 999 appuser && \
 
 
 # create src folder
+RUN mkdir -p /home/appuser/ShapeNet && chown -R appuser:appuser /home/appuser
 RUN mkdir -p /home/appuser/src && chown -R appuser:appuser /home/appuser
+
 
 # set working directory
 WORKDIR /home/appuser
@@ -49,11 +51,19 @@ RUN apt-get update && \
     build-essential \
     wget \
     curl \
+    jq \
     gdb \
     sudo \
     nano \
-    net-tools
+    net-tools \
+    unzip
 
+# download the shapenet dataset
+# USER appuser
+# RUN cd ShapeNet && \
+#     wget -O shapenet.zip "your_download_link" && \
+#     unzip shapenet.zip && \
+#     rm shapenet.zip
 
 # copy the requirements.txt into the image
 COPY /misc/requirements.txt .
@@ -62,20 +72,17 @@ COPY /misc/requirements.txt .
 USER appuser
 RUN python3 - pip install --no-cache-dir -r requirements.txt
 
-# create src folder, where the current src folder will be attached as a volume
-RUN mkdir -p /home/appuser/src
+# remove the requirements file, because it will be attached as a volume later, so it can be modified from within the container
+USER appuser
+RUN rm requirements.txt
 
 #install vscode server and extensions inside the container
 USER root
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive\
-    apt-get install -y\
-    curl \
-    jq
-COPY  --chown=appuser:appuser ./misc/.devcontainer/ /home/appuser/spot_detect_and_follow/.devcontainer/
+COPY  --chown=appuser:appuser ./misc/.devcontainer/ /home/appuser/.devcontainer/
 USER appuser
 ARG VSCODE_COMMIT_HASH
-RUN bash /home/appuser/spot_detect_and_follow/.devcontainer/preinstall_vscode.sh $VSCODE_COMMIT_HASH /home/appuser/spot_detect_and_follow/.devcontainer/devcontainer.json
+RUN bash /home/appuser/.devcontainer/preinstall_vscode.sh $VSCODE_COMMIT_HASH /home/appuser/.devcontainer/devcontainer.json
+RUN rm -r .devcontainer
 
 # start as appuser
 USER appuser
