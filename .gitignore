@@ -1,0 +1,13 @@
+# ignore models
+*.pth
+*.pt
+*.onnx
+*.torchscript
+*.pyc
+
+# ignore bytecode
+__pycache__
+
+# ignore images
+*.jpg
+*.png

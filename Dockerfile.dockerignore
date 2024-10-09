@@ -1,0 +1,11 @@
+.git/
+.gitignore
+README.md
+Dockerfile
+run_docker.sh
+build_docker.sh
+
+**/.cache/*
+**/.cache/
+**/.cache
+**/CMakeCache.txt
