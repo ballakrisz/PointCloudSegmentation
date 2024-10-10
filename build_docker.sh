@@ -13,6 +13,7 @@ echo $VSCODE_COMMIT_HASH
 docker build \
     --file Dockerfile\
     --tag $image_name:$image_tag \
-    --build-arg HOST_USER_GROUP_ARG=$HOST_USER_GROUP_ARG\
-    --build-arg VSCODE_COMMIT_HASH=$VSCODE_COMMIT_HASH\
+    --build-arg HOST_USER_GROUP_ARG=$HOST_USER_GROUP_ARG \
+    --build-arg VSCODE_COMMIT_HASH=$VSCODE_COMMIT_HASH \
+    --build-arg HUGGING_FACE_TOKEN=$token \
     .\
