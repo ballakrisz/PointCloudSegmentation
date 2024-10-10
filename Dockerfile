@@ -33,14 +33,12 @@ RUN groupadd -g 999 appuser && \
     usermod -aG sudo,hostgroup,adm,dip appuser && \
     cp /etc/skel/.bashrc /home/appuser/
 
-
-# create src folder
-RUN mkdir -p /home/appuser/ShapeNet && chown -R appuser:appuser /home/appuser
-RUN mkdir -p /home/appuser/src && chown -R appuser:appuser /home/appuser
-
-
 # set working directory
 WORKDIR /home/appuser
+
+# create src folder
+USER appuser
+RUN mkdir ShapeNet
 
 # install basic dependencies for everything (useful for development, may be stripped for deployment)
 USER root
