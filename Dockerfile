@@ -15,7 +15,6 @@ USER root
 
 # build-time argument given by build_docker.sh
 ARG HOST_USER_GROUP_ARG
-ARG HUGGING_FACE_TOKEN
 
 # create group appuser with id 999
 # create grour hostgroup. This is needed so appuser can manipulate the host file without sudo
@@ -43,6 +42,7 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noniteractive \
     apt-get install -y \
     git \
+    git-lfs \
     build-essential \
     wget \
     curl \
@@ -52,17 +52,6 @@ RUN apt-get update && \
     nano \
     net-tools \
     unzip
-
-# Install Git and set up the credential helper
-RUN apt-get update && apt-get install -y git \
-    && git config --global credential.helper store
-
-# Add the Hugging Face credentials to a .netrc file
-RUN echo "machine huggingface.co login ${HUGGING_FACE_TOKEN} password ${HUGGING_FACE_TOKEN}" > ~/.netrc
-
-# Clone the repository
-RUN cd home/appuser & git clone https://huggingface.co/datasets/ShapeNet/ShapeNetCore
-
 
 # copy the requirements.txt into the image
 COPY /misc/requirements.txt .
