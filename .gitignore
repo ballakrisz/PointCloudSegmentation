@@ -11,3 +11,6 @@ __pycache__
 # ignore images
 *.jpg
 *.png
+
+# ignore the .params file
+misc/.params
