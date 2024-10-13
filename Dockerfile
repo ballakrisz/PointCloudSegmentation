@@ -15,6 +15,7 @@ USER root
 
 # build-time argument given by build_docker.sh
 ARG HOST_USER_GROUP_ARG
+ARG USE_VSCODE
 
 # create group appuser with id 999
 # create grour hostgroup. This is needed so appuser can manipulate the host file without sudo
@@ -83,7 +84,9 @@ USER root
 COPY  --chown=appuser:appuser ./misc/.devcontainer/ /home/appuser/.devcontainer/
 USER appuser
 ARG VSCODE_COMMIT_HASH
-RUN bash /home/appuser/.devcontainer/preinstall_vscode.sh $VSCODE_COMMIT_HASH /home/appuser/.devcontainer/devcontainer.json
+RUN if [ "$USE_VSCODE" = "true" ]; then \
+        bash /home/appuser/.devcontainer/preinstall_vscode.sh $VSCODE_COMMIT_HASH /home/appuser/.devcontainer/devcontainer.json; \
+    fi
 RUN rm -r .devcontainer
 
 # start as appuser
