@@ -1,10 +1,6 @@
-import kagglehub
 from torch.utils.data import Dataset
 import json
 import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import pandas as pd
 # from pympler import asizeof
 
 SYNSET_DICT = {
@@ -50,7 +46,7 @@ class ShapeNetSem(Dataset):
         self.npoints = npoints
         
         # Download the data (if not already downloaded) --> caching is handled by kagglehub
-        self.download_path = kagglehub.dataset_download("mitkir/shapenet") + "/shapenetcore_partanno_segmentation_benchmark_v0_normal/"
+        self.download_path = "/home/appuser/shapenetcore_partanno_segmentation_benchmark_v0_normal/"
 
         # config files for the test, train and val splits
         self.test_split = self.download_path + "train_test_split/shuffled_test_file_list.json"
