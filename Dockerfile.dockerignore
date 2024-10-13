@@ -4,7 +4,6 @@ README.md
 Dockerfile
 run_docker.sh
 build_docker.sh
-ShapeNetSem/
 
 **/.cache/*
 **/.cache/
