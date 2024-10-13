@@ -1,6 +1,5 @@
 # Point Cloud Segmentation
-## TODO
-make 2 sections in the how to build part, one if using vscode and one if not using vscode
+
 ## Team information
 
 Team name: Balla Krisztián (solo ha lehet) --> or something  like this (this name choice wasn't the greatest idea)  
@@ -85,11 +84,10 @@ Run the image. This will automatically start the train_segmentation.py script, w
 ```
 
 ## Related works
-**PointNet++**  
-github: https://github.com/charlesq34/pointnet2, related paper: https://arxiv.org/abs/1706.02413
 
-**SPoTr**  
-github: https://github.com/mlvlab/spotr, related paper: https://openaccess.thecvf.com//content/CVPR2023/papers/Park_Self-Positioning_Point-Based_Transformer_for_Point_Cloud_Understanding_CVPR_2023_paper.pdf
+| Model       | GitHub                                             | Article                                                |
+|-------------|----------------------------------------------------|--------------------------------------------------------|
+| PointNet++:   | [GitHub](https://github.com/charlesq34/pointnet2)   | [Article](https://arxiv.org/abs/1706.02413)            |
+| SPoTr       | [GitHub](https://github.com/mlvlab/spotr)           | [Article](https://openaccess.thecvf.com//content/CVPR2023/papers/Park_Self-Positioning_Point-Based_Transformer_for_Point_Cloud_Understanding_CVPR_2023_paper.pdf) |
+| PointNeXt   | [GitHub](https://github.com/guochengqian/pointnext) | [Article](https://arxiv.org/pdf/2206.04670v2)          |
 
-**PointNeXt**  
-github: https://github.com/guochengqian/pointnext, related paper: https://arxiv.org/pdf/2206.04670v2
