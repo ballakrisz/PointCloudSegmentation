@@ -38,7 +38,8 @@ Note: For the deployment (finished project), a separate branch will be created w
 
 Clone the repository 
 ```bash
-git clone https://github.com/ballakrisz/PointCloudSegmentation.git
+git clone https://github.com/ballakrisz/PointCloudSegmentation.git && \
+cd PointCloudSegmentation
 ```
 
 Make a copy of the misc/.params.example file and name it .params and fill it out according to your file paths, make sure the ***use_vscode='true'***
@@ -65,7 +66,8 @@ python3 /home/appuser/src/train_segmentation.py
 
 Clone the repository 
 ```bash
-git clone https://github.com/ballakrisz/PointCloudSegmentation.git
+git clone https://github.com/ballakrisz/PointCloudSegmentation.git && \
+cd PointCloudSegmentation
 ```
 
 Make a copy of the misc/.params.example file and name it .params and fill it out according to your file paths, make sure the ***use_vscode='false'***
