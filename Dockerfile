@@ -79,7 +79,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 USER appuser
 RUN rm requirements.txt
 
-#install vscode server and extensions inside the container
+#install vscode server and extensions inside the container (if the use_vscode flag is set to true in the /misc/.params file)
 USER root
 COPY  --chown=appuser:appuser ./misc/.devcontainer/ /home/appuser/.devcontainer/
 USER appuser
