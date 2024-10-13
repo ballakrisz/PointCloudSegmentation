@@ -5,9 +5,6 @@ from data.load_data import ShapeNetSem
 from utils.visualizer import visualize_points
 from torch.utils.data import DataLoader
 
-# Lots of code are still missin for the training
-
-
 # The data can be loaded into split into train, test and validation sets like so 
 # if you have enough memory set the preload flag, it requries about 1,2GB of memory:
 # for the actual training I might implenet some kind of caching to save memory (if needed)
