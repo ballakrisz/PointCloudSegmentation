@@ -1,5 +1,5 @@
 #!/bin/bash
-#parameters from .param file
+#parameters from .param file (please set the use_vscode variable to true or false)
 if ! [ -f "misc/.params" ];
 then
    echo ".params file not found"

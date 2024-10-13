@@ -1,5 +1,5 @@
 image_name="point_cloud_segmentation"
-image_tag="v1.0"
+image_tag="v1.1"
 container_name="point_cloud_segmentation"
 src_folder="./src"
 vscode_folder="./misc/.vscode"
