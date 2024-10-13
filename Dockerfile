@@ -53,12 +53,26 @@ RUN apt-get update && \
     net-tools \
     unzip
 
+# install gdown inside the container
+USER root
+RUN pip install --no-cache-dir gdown
+
+# donwload tha dataset from google drive
+USER appuser
+RUN gdown https://drive.google.com/file/d/1CNSXU4naZmISacc5bOBx5FSxnYIkjUNW/view --fuzzy
+
+# unzip the files
+USER appuser
+RUN unzip shapenetcore_partanno_segmentation_benchmark_v0_normal.zip && \
+    rm shapenetcore_partanno_segmentation_benchmark_v0_normal.zip
+
 # copy the requirements.txt into the image
+USER root
 COPY /misc/requirements.txt .
 
 # install python packages (doesn't need to install python and pip, as it's already installed in base image)
 USER appuser
-RUN python3 - pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # remove the requirements file, because it will be attached as a volume later, so it can be modified from within the container
 USER appuser
