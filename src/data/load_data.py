@@ -32,7 +32,7 @@ def normalize(pc):
     return pc
 
 class ShapeNetSem(Dataset):
-    def __init__(self,npoints = 2500, split = 'test', preload=False) -> None:
+    def __init__(self,npoints = 2500, split = 'test', preload=False, use_normals=False) -> None:
         """
         Initialize the LoadData class.
 
@@ -44,6 +44,20 @@ class ShapeNetSem(Dataset):
         self.split = split
         self.preload = preload
         self.npoints = npoints
+        self.use_normals = use_normals
+        self.catfile = "/home/appuser/shapenetcore_partanno_segmentation_benchmark_v0_normal/synsetoffset2category.txt"
+        self.cat = {}
+
+        with open(self.catfile, 'r') as f:
+            for line in f:
+                ls = line.strip().split()
+                self.cat[ls[0]] = ls[1]
+        self.cat = {k: v for k, v in self.cat.items()}
+        self.classes_original = dict(zip(self.cat, range(len(self.cat))))
+
+        self.classes = {}
+        for i in self.cat.keys():
+            self.classes[i] = self.classes_original[i]
         
         # Download the data (if not already downloaded) --> caching is handled by kagglehub
         self.download_path = "/home/appuser/shapenetcore_partanno_segmentation_benchmark_v0_normal/"
@@ -80,13 +94,26 @@ class ShapeNetSem(Dataset):
             }
             npz_data.close()
         
-        # Randomly sample npoints from the point cloud --> same techinque as in the PointNet++ paper
-        choice = np.random.choice(len(data['point_cloud']), self.npoints, replace=True)
-        data['point_cloud'] = normalize(data['point_cloud'])[choice, :]
-        data['part_label'] = data['part_label'][choice]
-        data['surface_normal'] = data['surface_normal'][choice, :]
+        # if using normals, concatenate it to the point cloud
+        if self.use_normals:
+            pcl = np.concatenate((data['point_cloud'], data['surface_normal']), axis=1)
+        else:
+            pcl = data['point_cloud']
 
-        return data['point_cloud'], data['part_label'], data['surface_normal'], data['object_label']
+        # normalize the point cloud
+        pcl[:, 0:3] = normalize(pcl[:, 0:3])
+        
+        # Randomly sample npoints from the point cloud --> same techinque as in the PointNet++ paper
+        choice = np.random.choice(len(pcl), self.npoints, replace=True)
+        pcl = pcl[choice, :]
+        point_labels = data['part_label'][choice]
+        point_labels = np.array([point_labels]).astype(np.int32).squeeze()
+
+        # extract the object label for class-wise performrance analysis
+        object_class = data['object_label']
+        object_label = np.array([self.classes[object_class]]).astype(np.int32)
+
+        return pcl, object_label, point_labels
         
     def prepare_data(self):
         if self.split == 'train':
