@@ -8,7 +8,7 @@ def main(preload):
     # The data can be loaded into split into train, test and validation sets like so 
     # if you have enough memory set the preload flag, it requires about 1.2GB of memory:
     # for the actual training I might implement some kind of caching to save memory (if needed)
-    train_dataset = ShapeNetSem(split='train', preload=preload)
+    train_dataset = ShapeNetSem(split='train', preload=preload, use_normals=True)
     test_dataset = ShapeNetSem(split='test', preload=preload)
     val_dataset = ShapeNetSem(split='val', preload=preload)
 
