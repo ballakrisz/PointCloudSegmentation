@@ -1,8 +1,11 @@
 import pandas as pd
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import numpy as np 
+import sys
 
 OBJECT_PART_LABEL_RANGE = {
     'Airplane': list(range(4)),
@@ -32,6 +35,11 @@ PART_LABEL_COLORS = {
     5: 'red'
 }
 
+def on_key(event):
+    if event.key == 'escape':
+        sys.exit(0)
+
+
 def visualize_points(point_cloud, part_label, object_label, acc, best_part_iou, worst_part_iou, avg_part_iou):
     x = point_cloud[:, 0]
     y = point_cloud[:, 1]
@@ -60,4 +68,5 @@ def visualize_points(point_cloud, part_label, object_label, acc, best_part_iou, 
     ax.set_zlabel('Z Label')
     plt.title(f'{object_label}\n Accuracy: {acc}\n Best part iou: {best_part_iou}\n Worst part iou: {worst_part_iou}\n Avg part iou: {avg_part_iou}')
     plt.axis('off')
+    fig.canvas.mpl_connect('key_press_event', on_key)
     plt.show()

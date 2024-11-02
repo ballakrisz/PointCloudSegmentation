@@ -58,9 +58,13 @@ RUN apt-get update && \
 USER root
 RUN pip install --no-cache-dir gdown
 
-# donwload tha dataset from google drive
+# donwload tha dataset and my own pretrained PointNet++ from google drive
 USER appuser
 RUN gdown https://drive.google.com/file/d/1CNSXU4naZmISacc5bOBx5FSxnYIkjUNW/view --fuzzy
+
+# Move the file to the desired directory
+USER appuser
+RUN mv best_model.pth /src/seg_models/Pointnet_Pointnet2_pytorch/checkpoints/best_model.pth
 
 # unzip the files
 USER appuser

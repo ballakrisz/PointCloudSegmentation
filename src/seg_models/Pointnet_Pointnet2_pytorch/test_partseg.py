@@ -78,10 +78,10 @@ def main(args):
     logger = logging.getLogger("Model")
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler = logging.FileHandler('%s/eval.txt' % experiment_dir)
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
+    # file_handler = logging.FileHandler('%s/eval.txt' % experiment_dir)
+    # file_handler.setLevel(logging.INFO)
+    # file_handler.setFormatter(formatter)
+    # logger.addHandler(file_handler)
     log_string('PARAMETER ...')
     log_string(args)
 
@@ -96,10 +96,10 @@ def main(args):
     num_part = 50
 
     '''MODEL LOADING'''
-    model_name = os.listdir(experiment_dir + '/logs')[0].split('.')[0]
+    model_name = "pointnet2_part_seg_msg"
     MODEL = importlib.import_module(model_name)
     classifier = MODEL.get_model(num_part, normal_channel=args.normal).cuda()
-    checkpoint = torch.load(str(experiment_dir) + '/checkpoints/best_model.pth')
+    checkpoint = torch.load("/home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/checkpoints/best_model.pth")
     classifier.load_state_dict(checkpoint['model_state_dict'])
 
     with torch.no_grad():
