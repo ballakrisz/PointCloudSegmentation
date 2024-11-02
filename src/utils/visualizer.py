@@ -38,6 +38,8 @@ PART_LABEL_COLORS = {
 def on_key(event):
     if event.key == 'escape':
         sys.exit(0)
+    elif event.key == 'right':
+        plt.close()
 
 
 def visualize_points(point_cloud, part_label, object_label, acc, best_part_iou, worst_part_iou, avg_part_iou):
