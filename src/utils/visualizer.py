@@ -32,13 +32,13 @@ PART_LABEL_COLORS = {
     5: 'red'
 }
 
-def visualize_points(point_cloud, part_label, object_label):
+def visualize_points(point_cloud, part_label, object_label, acc, best_part_iou, worst_part_iou, avg_part_iou):
     x = point_cloud[:, 0]
     y = point_cloud[:, 1]
     z = point_cloud[:, 2]
 
     # create fig
-    fig = plt.figure()
+    fig = plt.figure(figsize=(18,8))
     ax = fig.add_subplot(111, projection='3d')
     
     # split the data into groups based on the part label
@@ -58,5 +58,6 @@ def visualize_points(point_cloud, part_label, object_label):
     ax.set_xlabel('X Label')
     ax.set_ylabel('Y Label')
     ax.set_zlabel('Z Label')
-    plt.title(object_label)
+    plt.title(f'{object_label}\n Accuracy: {acc}\n Best part iou: {best_part_iou}\n Worst part iou: {worst_part_iou}\n Avg part iou: {avg_part_iou}')
+    plt.axis('off')
     plt.show()
