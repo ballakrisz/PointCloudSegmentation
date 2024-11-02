@@ -57,7 +57,7 @@ def parse_args():
     parser.add_argument('--batch_size', type=int, default=1, help='batch size in testing')
     parser.add_argument('--gpu', type=str, default='0', help='specify gpu device')
     parser.add_argument('--num_point', type=int, default=2048, help='point Number')
-    parser.add_argument('--log_dir', type=str, required='pointnet2_part_seg_msg', help='experiment root')
+    parser.add_argument('--log_dir', type=str, default='pointnet2_part_seg_msg', help='experiment root')
     parser.add_argument('--normal', action='store_true', default=True, help='use normals')
     parser.add_argument('--num_votes', type=int, default=3, help='aggregate segmentation scores with voting')
     parser.add_argument('--visualize', action='store_true', default=True, help='visualize the prediction')
@@ -99,7 +99,7 @@ def main(args):
     model_name = "pointnet2_part_seg_msg"
     MODEL = importlib.import_module(model_name)
     classifier = MODEL.get_model(num_part, normal_channel=args.normal).cuda()
-    checkpoint = torch.load("/home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/checkpoints/best_model.pth")
+    checkpoint = torch.load("/home/appuser/checkpoints/PointNet2PartSeg/best_model.pth")
     classifier.load_state_dict(checkpoint['model_state_dict'])
 
     with torch.no_grad():

@@ -30,4 +30,4 @@ docker run \
     --runtime=nvidia \
     --name $container_name \
     $image_name:$image_tag \
-    python /home/krisz/PointCloudSegmentation/src/seg_models/Pointnet_Pointnet2_pytorch/test_partseg.py \
+    python /home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/test_partseg.py \

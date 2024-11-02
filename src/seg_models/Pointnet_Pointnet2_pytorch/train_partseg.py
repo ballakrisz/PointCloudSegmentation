@@ -83,7 +83,7 @@ def main(args):
     else:
         exp_dir = exp_dir.joinpath(args.log_dir)
     exp_dir.mkdir(exist_ok=True)
-    checkpoints_dir = '/home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/checkpoints'
+    checkpoints_dir = '/home/appuser/checkpoints/PointNet2PartSeg/'
     log_dir = exp_dir.joinpath('logs/')
     log_dir.mkdir(exist_ok=True)
 
