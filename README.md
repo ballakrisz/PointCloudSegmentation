@@ -114,7 +114,123 @@ python3 /home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/test_partseg.py
 python3 /home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/train_partseg.py
 ```
 ## Baseline model
-My baseline model of choice is the PointNet++ architecture because my project focuses on the recent uprising of transformer-based approaches, therefore in the last milestone I will incrementally develop a transformer-based part segmentator with hopes of significantly outpreforming the baseline PointNet++
+My baseline model of choice is the PointNet++ architecture because my project focuses on the recent uprising of transformer-based approaches, therefore in the last milestone I will incrementally develop a transformer-based part segmentator with hopes of significantly outpreforming the baseline PointNet++ model.  
+The important metrics during training were as follow:  
+![Local Image](training_metrics/PointNet++/train_loss.png)
+
+![Local Image](training_metrics/PointNet++/test_acc.png)
+![Local Image](training_metrics/PointNet++/test_class_iou.png)
+![Local Image](training_metrics/PointNet++/test_instance_iou.png)
+The evaluation on the dest dataset resulted in the following values:  
+<div align="center">
+
+<div style="display: flex; justify-content: space-around;">
+
+<table style="margin-right: 20px;">
+    <thead>
+        <tr>
+            <th>Class</th>
+            <th>mIoU</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Airplane</td>
+            <td>0.821437</td>
+        </tr>
+        <tr>
+            <td>Bag</td>
+            <td>0.735315</td>
+        </tr>
+        <tr>
+            <td>Cap</td>
+            <td>0.841750</td>
+        </tr>
+        <tr>
+            <td>Car</td>
+            <td>0.737776</td>
+        </tr>
+        <tr>
+            <td>Chair</td>
+            <td>0.905016</td>
+        </tr>
+        <tr>
+            <td>Earphone</td>
+            <td>0.714715</td>
+        </tr>
+        <tr>
+            <td>Guitar</td>
+            <td>0.904174</td>
+        </tr>
+        <tr>
+            <td>Knife</td>
+            <td>0.877231</td>
+        </tr>
+        <tr>
+            <td>Lamp</td>
+            <td>0.842915</td>
+        </tr>
+        <tr>
+            <td>Laptop</td>
+            <td>0.946049</td>
+        </tr>
+        <tr>
+            <td>Motorbike</td>
+            <td>0.595754</td>
+        </tr>
+        <tr>
+            <td>Mug</td>
+            <td>0.948060</td>
+        </tr>
+        <tr>
+            <td>Pistol</td>
+            <td>0.798120</td>
+        </tr>
+        <tr>
+            <td>Rocket</td>
+            <td>0.575504</td>
+        </tr>
+        <tr>
+            <td>Skateboard</td>
+            <td>0.751842</td>
+        </tr>
+        <tr>
+            <td>Table</td>
+            <td>0.820963</td>
+        </tr>
+    </tbody>
+</table>
+
+<table>
+    <thead>
+        <tr>
+            <th>Metric</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Accuracy</td>
+            <td>0.93935</td>
+        </tr>
+        <tr>
+            <td>Class avg accuracy</td>
+            <td>0.83077</td>
+        </tr>
+        <tr>
+            <td>Class avg mIoU</td>
+            <td>0.80104</td>
+        </tr>
+        <tr>
+            <td>Instance avg mIoU</td>
+            <td>0.84371</td>
+        </tr>
+    </tbody>
+</table>
+
+</div>
+
+</div>
 
 ## Related works
 
