@@ -56,8 +56,15 @@ Run the image with the following blueprint
 ```bash
 ./run_docker_no_vscode.sh ['train|test'] [batch_size] [use_pretrained]
 ```
+#### IMPORTANT
+If at any point you cancel the script execution with ctrl+c, don't forget to stop the container by running
+```bash
+docker stop point_cloud_segmentation 
+```
+
 #### Testing
-To visualize the trained networks predictions run the following:
+To visualize the trained networks predictions run the following:  
+(You can go to the next image by pressing the right arrow on your keyboard, and exit by pressing the escape key)
 ```bash
 ./run_docker_no_vscode.sh test
 ```
