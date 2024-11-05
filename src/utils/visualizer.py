@@ -48,7 +48,7 @@ def visualize_points(point_cloud, part_label, object_label, acc, best_part_iou, 
     z = point_cloud[:, 2]
 
     # create fig
-    fig = plt.figure(figsize=(18,8))
+    fig = plt.figure(figsize=(25,12.5))
     ax = fig.add_subplot(111, projection='3d')
     
     # split the data into groups based on the part label
