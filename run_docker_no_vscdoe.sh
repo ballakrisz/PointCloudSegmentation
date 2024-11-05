@@ -11,6 +11,16 @@ then
     docker stop $container_name;
     docker rm $container_name;
 fi
+if [ "$1" == "train" ]; then
+    script_path="/home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/train_partseg.py"
+    tensorboard_command="tensorboard --logdir /home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/log/part_seg/pointnet2_part_seg_msg/logs --host 0.0.0.0 &"
+elif [ "$1" == "test" ]; then
+    script_path="/home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/test_partseg.py"
+    tensorboard_command="echo 'No tensorboard for testing.'"
+else
+    echo "Invalid argument. Use 'train' or 'test'."
+    exit 1
+fi
 
 echo "Starting the container...";
 docker run \
@@ -30,4 +40,4 @@ docker run \
     --runtime=nvidia \
     --name $container_name \
     $image_name:$image_tag \
-    python /home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/test_partseg.py \
+    bash -c "$tensorboard_command && python $script_path"
