@@ -5,3 +5,4 @@ src_folder="./src"
 vscode_folder="./misc/.vscode"
 requirements_file="./misc/requirements.txt"
 use_vscode='false'
+checkpoints_folder='./checkpoints'
