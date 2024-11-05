@@ -34,7 +34,46 @@ Note: For the deployment (finished project), a separate branch will be created w
 
 ## Building and running the project
 
-### Option 1: using vscode
+### Option 1: without the vscode IDE (recommended approach)
+
+Clone the repository 
+```bash
+git clone https://github.com/ballakrisz/PointCloudSegmentation.git && \
+cd PointCloudSegmentation
+```
+
+Make a copy of the misc/.params.example file and name it .params and fill it out according to your file paths, make sure the ***use_vscode='false'***
+```bash
+cp misc/.params.example misc/.params
+```
+
+Build the docker image
+```bash
+./build_docker.sh
+```
+
+Run the image with the following blueprint
+```bash
+./run_docker_no_vscode.sh ['train|test'] [batch_size] [use_pretrained]
+```
+#### Testing
+To visualize the trained networks predictions run the following:
+```bash
+./run_docker_no_vscode.sh test
+```
+To evaluate the model on the whole test dataset run the following where [batch_size] should be a number other than 1 eg.:
+```bash
+./run_docker_no_vscode.sh test 32
+```
+
+#### Training
+To train the network run the following command, where [batch_size] should be as big as your PC can handle (or what you prefer), the [use_pretrained] should be either 'true' or 'false'. Example with batch size of 32 and starting from scratch:
+```bash
+./run_docker_no_vscode.sh train 32 false
+```
+After this, you can inspect the training in Tensorboard by opening the following url in your browser:   
+http://localhost:6006/
+### Option 2: using vscode (only recommended if you want to develop the code)
 
 Clone the repository 
 ```bash
@@ -57,34 +96,16 @@ Run the image
 ./run_docker.sh
 ```
 
-Attach a vscdoe server to the running container according to the top of the 'Files and folder structure' section and inside the container run 
+Attach a vscdoe server to the running container according to the top of the 'Files and folder structure' section and inside the container run  
+#### Testing 
 ```bash
-python3 /home/appuser/src/train_segmentation.py
+python3 /home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/test_partseg.py
 ```
 
-### Option 2: without the vscode IDE
-
-Clone the repository 
+#### Training
 ```bash
-git clone https://github.com/ballakrisz/PointCloudSegmentation.git && \
-cd PointCloudSegmentation
+python3 /home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/train_partseg.py
 ```
-
-Make a copy of the misc/.params.example file and name it .params and fill it out according to your file paths, make sure the ***use_vscode='false'***
-```bash
-cp misc/.params.example misc/.params
-```
-
-Build the docker image
-```bash
-./build_docker.sh
-```
-
-Run the image. This will automatically start the train_segmentation.py script, which load the data into 3 splits, preprocesses them and visualizes 8-8 point clouds from each of the dataloaders
-```bash
-./run_docker_no_vscode.sh
-```
-
 ## Related works
 
 | Model       | GitHub                                             | Article                                                |
