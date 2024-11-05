@@ -58,6 +58,7 @@ Run the image with the following blueprint
 ```
 #### Testing
 To visualize the trained networks predictions run the following:
+(You can go to the next image by pressing the right arrow on your keyboard, and exit by pressing the escape key)
 ```bash
 ./run_docker_no_vscode.sh test
 ```
