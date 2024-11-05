@@ -71,6 +71,7 @@ else
         --volume ${src_folder}:/home/appuser/src \
         --volume ${vscode_folder}:/home/appuser/.vscode \
         --volume ${requirements_file}:/home/appuser/requirements.txt \
+        --volume ${checkpoints_folder}:/home/appuser/checkpoints \
         --network host \
         --interactive \
         --privileged \
