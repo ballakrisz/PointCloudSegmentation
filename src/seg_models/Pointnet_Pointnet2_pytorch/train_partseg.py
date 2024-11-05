@@ -12,6 +12,7 @@ import importlib
 import shutil
 import provider
 import numpy as np
+from datetime import datetime
 
 from pathlib import Path
 from tqdm import tqdm
@@ -138,15 +139,23 @@ def main(args):
             torch.nn.init.xavier_normal_(m.weight.data)
             torch.nn.init.constant_(m.bias.data, 0.0)
 
-    # try:
-    #     checkpoint = torch.load(str(exp_dir) + '/checkpoints/best_model.pth')
-    #     start_epoch = checkpoint['epoch']
-    #     classifier.load_state_dict(checkpoint['model_state_dict'])
-    #     log_string('Use pretrain model')
-    # except:
-    #     log_string('No existing model, starting training from scratch...')
-    #     start_epoch = 0
-    #     classifier = classifier.apply(weights_init)
+    try:
+        checkpoint_folder = "/home/appuser/checkpoints/PointNet2PartSeg/"
+        checkpoints = [torch.load(os.path.join(checkpoint_folder, f)) for f in os.listdir(checkpoint_folder) if f.endswith('.pth')]
+        checkpoint = max(checkpoints, key=lambda x: x['test_acc'])
+        start_epoch = checkpoint['epoch']
+        best_acc = checkpoint['test_acc']
+        best_class_avg_iou = checkpoint['class_avg_iou']
+        best_inctance_avg_iou = checkpoint['inctance_avg_iou']
+        classifier.load_state_dict(checkpoint['model_state_dict'])
+        log_string('Use pretrain model')
+    except:
+        log_string('No existing model, starting training from scratch...')
+        start_epoch = 0
+        best_acc = 0
+        best_class_avg_iou = 0
+        best_inctance_avg_iou = 0
+        classifier = classifier.apply(weights_init)
 
     #### Start training from sratch ####
     start_epoch = 0
@@ -172,10 +181,7 @@ def main(args):
     MOMENTUM_DECCAY = 0.5
     MOMENTUM_DECCAY_STEP = args.step_size
 
-    best_acc = 0
     global_epoch = 0
-    best_class_avg_iou = 0
-    best_inctance_avg_iou = 0
 
     for epoch in range(start_epoch, args.epoch):
         mean_correct = []
@@ -294,7 +300,10 @@ def main(args):
             epoch + 1, test_metrics['accuracy'], test_metrics['class_avg_iou'], test_metrics['inctance_avg_iou']))
         if (test_metrics['inctance_avg_iou'] >= best_inctance_avg_iou):
             logger.info('Save model...')
-            savepath = str(checkpoints_dir) + '/best_model.pth'
+            current_date = datetime.now()
+            # Format it to yyyy_mm_dd
+            formatted_date = current_date.strftime('%Y_%m_%d')
+            savepath = str(checkpoints_dir) + f'/{formatted_date}.pth'
             log_string('Saving at %s' % savepath)
             state = {
                 'epoch': epoch,

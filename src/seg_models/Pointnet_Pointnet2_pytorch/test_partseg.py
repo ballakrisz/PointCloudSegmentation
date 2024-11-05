@@ -99,7 +99,12 @@ def main(args):
     model_name = "pointnet2_part_seg_msg"
     MODEL = importlib.import_module(model_name)
     classifier = MODEL.get_model(num_part, normal_channel=args.normal).cuda()
-    checkpoint = torch.load("/home/appuser/checkpoints/PointNet2PartSeg/best_model.pth")
+    
+    # Load the checkpoints and select the model with the highest test accuracy (feel free to load a specific model if there are multiple)
+    checkpoint_folder = "/home/appuser/checkpoints/PointNet2PartSeg/"
+    checkpoints = [torch.load(os.path.join(checkpoint_folder, f)) for f in os.listdir(checkpoint_folder) if f.endswith('.pth')]
+    checkpoint = max(checkpoints, key=lambda x: x['test_acc'])
+    
     classifier.load_state_dict(checkpoint['model_state_dict'])
 
     with torch.no_grad():
