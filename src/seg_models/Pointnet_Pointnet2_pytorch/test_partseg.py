@@ -75,6 +75,9 @@ def main(args):
 
     '''LOG'''
     args = parse_args()
+    # if batch size is not 1, don't visualize, but rather evaluate on the whole test dataset
+    if args.batch_size != 1:
+        args.visualize = False
     logger = logging.getLogger("Model")
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -123,10 +126,12 @@ def main(args):
         classifier = classifier.eval()
         for batch_id, (points, label, target) in tqdm(enumerate(testDataLoader), total=len(testDataLoader),
                                                       smoothing=0.9):
+            log_string("Batch %d/%d" % (batch_id + 1, len(testDataLoader)))
             batchsize, num_point, _ = points.size()
             cur_batch_size, NUM_POINT, _ = points.size()
-            pcl = points
-            object_class = classes[int(label.squeeze().cpu().numpy())]
+            if args.visualize:
+                pcl = points
+                object_class = classes[int(label.squeeze().cpu().numpy())]
             points, label, target = points.float().cuda(), label.long().cuda(), target.long().cuda()
             points = points.transpose(2, 1)
             vote_pool = torch.zeros(target.size()[0], target.size()[1], num_part).cuda()

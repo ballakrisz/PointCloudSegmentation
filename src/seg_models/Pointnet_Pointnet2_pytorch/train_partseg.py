@@ -61,6 +61,7 @@ def parse_args():
     parser.add_argument('--normal', action='store_true', default=True, help='use normals')
     parser.add_argument('--step_size', type=int, default=20, help='decay step for lr decay')
     parser.add_argument('--lr_decay', type=float, default=0.5, help='decay rate for lr decay')
+    parser.add_argument('--use_pretrained', action="store_true", default=False, help='use pretrained model')
 
     return parser.parse_args()
 
@@ -74,7 +75,7 @@ def main(args):
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
     '''CREATE DIR'''
-    timestr = str(datetime.datetime.now().strftime('%Y-%m-%d_%H-%M'))
+    timestr = str(datetime.now().strftime('%Y-%m-%d_%H-%M'))
     exp_dir = Path('./log/')
     exp_dir.mkdir(exist_ok=True)
     exp_dir = exp_dir.joinpath('part_seg')
@@ -85,11 +86,15 @@ def main(args):
         exp_dir = exp_dir.joinpath(args.log_dir)
     exp_dir.mkdir(exist_ok=True)
     checkpoints_dir = '/home/appuser/checkpoints/PointNet2PartSeg/'
-    log_dir = exp_dir.joinpath('logs/')
+    log_dir = Path('/home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/log/part_seg/pointnet2_part_seg_msg/logs')
     log_dir.mkdir(exist_ok=True)
+    print(f'log dir is {log_dir}')
 
     '''TENSORBOARD'''
-    writer = SummaryWriter(log_dir=str(log_dir))
+    run_name = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")  
+    tb_log_dir = f'/home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/log/part_seg/pointnet2_part_seg_msg/logs/{run_name}'
+    # Initialize SummaryWriter with the unique log directory
+    writer = SummaryWriter(log_dir=tb_log_dir)
 
     '''LOG'''
     args = parse_args()
@@ -123,8 +128,8 @@ def main(args):
 
     '''MODEL LOADING'''
     MODEL = importlib.import_module(args.model)
-    shutil.copy('models/%s.py' % args.model, str(exp_dir))
-    shutil.copy('models/pointnet2_utils.py', str(exp_dir))
+    shutil.copy('/home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/models/%s.py' % args.model, str(exp_dir))
+    shutil.copy('/home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/models/pointnet2_utils.py', str(exp_dir))
 
     classifier = MODEL.get_model(num_part, normal_channel=args.normal).cuda()
     criterion = MODEL.get_loss().cuda()
@@ -140,17 +145,26 @@ def main(args):
             torch.nn.init.constant_(m.bias.data, 0.0)
 
     try:
-        checkpoint_folder = "/home/appuser/checkpoints/PointNet2PartSeg/"
-        checkpoints = [torch.load(os.path.join(checkpoint_folder, f)) for f in os.listdir(checkpoint_folder) if f.endswith('.pth')]
-        checkpoint = max(checkpoints, key=lambda x: x['test_acc'])
-        start_epoch = checkpoint['epoch']
-        best_acc = checkpoint['test_acc']
-        best_class_avg_iou = checkpoint['class_avg_iou']
-        best_inctance_avg_iou = checkpoint['inctance_avg_iou']
-        classifier.load_state_dict(checkpoint['model_state_dict'])
-        log_string('Use pretrain model')
-    except:
-        log_string('No existing model, starting training from scratch...')
+        if args.use_pretrained:
+            checkpoint_folder = "/home/appuser/checkpoints/PointNet2PartSeg/"
+            checkpoints = [torch.load(os.path.join(checkpoint_folder, f)) for f in os.listdir(checkpoint_folder) if f.endswith('.pth')]
+            checkpoint = max(checkpoints, key=lambda x: x['test_acc'])
+            start_epoch = checkpoint['epoch']
+            best_acc = checkpoint['test_acc']
+            best_class_avg_iou = checkpoint['class_avg_iou']
+            best_inctance_avg_iou = checkpoint['inctance_avg_iou']
+            classifier.load_state_dict(checkpoint['model_state_dict'])
+            log_string('Use pretrain model')
+        else:
+            log_string('No existing model, starting training from scratch...')
+            start_epoch = 0
+            best_acc = 0
+            best_class_avg_iou = 0
+            best_inctance_avg_iou = 0
+            classifier = classifier.apply(weights_init)
+    except Exception as e:
+        log_string('Error loading pretrained model: %s' % str(e))
+        log_string('Starting training from scratch...')
         start_epoch = 0
         best_acc = 0
         best_class_avg_iou = 0
@@ -200,7 +214,7 @@ def main(args):
         classifier = classifier.train()
 
         '''learning one epoch'''
-        for i, (points, label, target) in tqdm(enumerate(trainDataLoader), total=len(trainDataLoader), smoothing=0.9):
+        for i, (points, label, target) in enumerate(trainDataLoader):
             optimizer.zero_grad()
 
             points = points.data.numpy()
@@ -242,7 +256,7 @@ def main(args):
 
             classifier = classifier.eval()
 
-            for batch_id, (points, label, target) in tqdm(enumerate(valDataLoader), total=len(valDataLoader), smoothing=0.9):
+            for batch_id, (points, label, target) in enumerate(valDataLoader):
                 cur_batch_size, NUM_POINT, _ = points.size()
                 points, label, target = points.float().cuda(), label.long().cuda(), target.long().cuda()
                 points = points.transpose(2, 1)
