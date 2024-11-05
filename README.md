@@ -113,6 +113,9 @@ python3 /home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/test_partseg.py
 ```bash
 python3 /home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/train_partseg.py
 ```
+## Baseline model
+My baseline model of choice is the PointNet++ architecture because my project focuses on the recent uprising of transformer-based approaches, therefore in the last milestone I will incrementally develop a transformer-based part segmentator with hopes of significantly outpreforming the baseline PointNet++
+
 ## Related works
 
 | Model       | GitHub                                             | Article                                                |
