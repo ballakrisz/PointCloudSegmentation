@@ -61,12 +61,6 @@ RUN pip install --no-cache-dir gdown
 # donwload tha dataset and my own pretrained PointNet++ from google drive
 USER appuser
 RUN gdown https://drive.google.com/file/d/1CNSXU4naZmISacc5bOBx5FSxnYIkjUNW/view --fuzzy
-RUN gdown https://drive.google.com/file/d/1_KoO10yQ6FSL505-dtlh3wbWWLpAqi0P/view --fuzzy
-
-# Move the file to the desired directory
-USER appuser
-RUN mkdir -p checkpoints/PointNet2PartSeg
-RUN mv best_model.pth checkpoints/PointNet2PartSeg/best_model.pth
 
 # unzip the files
 USER appuser
