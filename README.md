@@ -120,7 +120,7 @@ The important metrics during training were as follow:
 
 ![Local Image](training_metrics/PointNet++/test_acc.png)
 ![Local Image](training_metrics/PointNet++/test_class_iou.png)
-![Local Image](training_metrics/PointNet++/test_instance_iou.png)
+![Local Image](training_metrics/PointNet++/test_instance_iou.png)  
 The evaluation on the dest dataset resulted in the following values:  
 <div align="center">
 
