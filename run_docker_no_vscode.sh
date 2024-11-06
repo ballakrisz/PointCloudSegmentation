@@ -6,12 +6,60 @@ source ./misc/.params
 xhost + local:
 
 print_usage() {
-    echo "Usage: $0 [train|test] [batch_size] [use_pretrained]"
+    echo "Usage: $0 --mode [train|test] [--batch-size batch_size] [--use-pretrained true|false]"
     echo "  train: Train the model"
     echo "  test: Test the model"
     echo "  batch_size: (Optional) Batch size for training or testing (default: 32 for train, 1 for test)"
     echo "  use_pretrained: (Optional) Use pretrained model or not (default: false)"
 }
+
+invalidArgument()
+{
+    echo ""
+    echo "An invalid argument was provided, please use -h|--help to see the available options"
+    echo ""
+    exit 1 
+}
+
+use_pretrained=false
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -h|--help) print_usage; exit 0 ;;
+        --mode)
+            if [[ -n "$2" && "$2" != -* ]]; then  # Check if $2 exists and is not another option
+                mode="$2"; shift
+            else
+                echo "Error: --mode requires a value of train or test."
+                exit 1
+            fi
+            ;;
+        --batch-size)
+            if [[ -n "$2" && "$2" != -* ]]; then
+            batch_size="$2"; shift
+            else
+                if [[ "$mode" == "train" ]]; then
+                    batch_size=32
+                elif [[ "$mode" == "test" ]]; then
+                    batch_size=1
+                else
+                    echo "Error: --batch-size requires a value."
+                    exit 1
+                fi
+            fi
+            ;;
+        --use-pretrained)
+            if [[ -n "$2" && "$2" != -* ]]; then
+            use_pretrained="$2"; shift
+            else
+            use_pretrained=false
+            fi
+            ;;
+        *) invalidArgument ;;
+    esac
+    shift
+done
+
 
 if [[ $( docker ps -a -f name=$container_name | wc -l ) -eq 2 ]];
 then
@@ -19,23 +67,20 @@ then
     docker stop $container_name;
     docker rm $container_name;
 fi
-if [ "$1" == "train" ]; then
-    batch_size=32
-    use_pretrained=false
+if [ "$mode" == "train" ]; then
 
-    if [ -n "$2" ]; then
-        if ! [[ $2 =~ ^[0-9]+$ ]]; then
+    if [ -n "$batch_size" ]; then
+        if ! [[ $batch_size =~ ^[0-9]+$ ]]; then
             echo "Invalid batch size. Please provide a valid number."
             print_usage
             exit 1
         fi
-        batch_size=$2
     fi
 
-    if [ -n "$3" ] && [[ "$3" == "true" || "$3" == "false" ]]; then
-        use_pretrained=$3
-    else
-        use_pretrained=false
+    if [[ "$use_pretrained" != "true" && "$use_pretrained" != "false" ]]; then
+        echo "Invalid value for use_pretrained. Please provide 'true' or 'false'."
+        print_usage
+        exit 1
     fi
 
     script_path="/home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/train_partseg.py --batch_size $batch_size"
@@ -44,26 +89,26 @@ if [ "$1" == "train" ]; then
     fi
     echo "Script is $script_path"
     tensorboard_command="/home/appuser/.local/bin/tensorboard --logdir /home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/log/part_seg/pointnet2_part_seg_msg/logs --host 0.0.0.0 --port 6006"
-elif [ "$1" == "test" ]; then
-    batch_size=1
+elif [ "$mode" == "test" ]; then
 
-    if [ -n "$2" ]; then
-        if ! [[ $2 =~ ^[0-9]+$ ]]; then
+    if [ -n "$batch_size" ]; then
+        if ! [[ $batch_size =~ ^[0-9]+$ ]]; then
             echo "Invalid batch size. Please provide a valid number."
             print_usage
             exit 1
         fi
-        echo "Evaluation on the whole test dataset with a batch size of $2"
-        batch_size=$2
+        echo "Evaluation on the whole test dataset with a batch size of $batch_size"
     fi
 
     script_path="/home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/test_partseg.py --batch_size $batch_size"
     tensorboard_command="echo 'No tensorboard for testing.'"
 else
-    echo "Invalid argument. Use 'train' or 'test'."
+    echo "Invalid argument."
     print_usage
     exit 1
 fi
+
+echo "command: $script_path"
 
 echo "Starting the container...";
 docker run \

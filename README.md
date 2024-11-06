@@ -54,7 +54,7 @@ Build the docker image
 
 Run the image with the following blueprint
 ```bash
-./run_docker_no_vscode.sh ['train|test'] [batch_size] [use_pretrained]
+./run_docker_no_vscode.sh --mode ['train'|'test'] [--batch-size batch_size] [--use-pretrained 'true'|'false']
 ```
 #### IMPORTANT
 If at any point you cancel the script execution with ctrl+c, don't forget to stop the container by running
@@ -66,17 +66,17 @@ docker stop point_cloud_segmentation
 To visualize the trained networks predictions run the following:  
 (You can go to the next image by pressing the right arrow on your keyboard, and exit by pressing the escape key)
 ```bash
-./run_docker_no_vscode.sh test
+./run_docker_no_vscode.sh --mode test --batch-size 1
 ```
-To evaluate the model on the whole test dataset run the following where [batch_size] should be a number other than 1 eg.:
+To evaluate the model on the whole test dataset run the following where --batch-size should be a number other than 1 eg.:
 ```bash
-./run_docker_no_vscode.sh test 32
+./run_docker_no_vscode.sh --mode test --batch-size 12
 ```
 
 #### Training
-To train the network run the following command, where [batch_size] should be as big as your PC can handle (or what you prefer), the [use_pretrained] should be either 'true' or 'false'. Example with batch size of 32 and starting from scratch:
+To train the network run the following command, where --batch-size should be as big as your PC can handle (or what you prefer), the --use-pretrained should be either 'true' or 'false'. Example with batch size of 32 and starting from scratch:
 ```bash
-./run_docker_no_vscode.sh train 32 false
+./run_docker_no_vscode.sh --mode train --batch-size 32 --use-pretrained false
 ```
 After this, you can inspect the training in Tensorboard by opening the following url in your browser:   
 http://localhost:6006/
