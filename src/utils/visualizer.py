@@ -68,6 +68,14 @@ def visualize_points(point_cloud, part_label, object_label, acc, best_part_iou, 
     ax.set_xlabel('X Label')
     ax.set_ylabel('Y Label')
     ax.set_zlabel('Z Label')
+
+    max_range = np.array([x.max()-x.min(), y.max()-y.min(), z.max()-z.min()]).max()
+    mid_x = (x.max() + x.min()) / 2
+    mid_y = (y.max() + y.min()) / 2
+    mid_z = (z.max() + z.min()) / 2
+    ax.set_xlim(mid_x - max_range/2, mid_x + max_range/2)
+    ax.set_ylim(mid_y - max_range/2, mid_y + max_range/2)
+    ax.set_zlim(mid_z - max_range/2, mid_z + max_range/2)
     plt.title(f'{object_label}\n Accuracy: {acc}\n Best part iou: {best_part_iou}\n Worst part iou: {worst_part_iou}\n Avg part iou: {avg_part_iou}')
     plt.axis('off')
     fig.canvas.mpl_connect('key_press_event', on_key)
