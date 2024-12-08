@@ -1,0 +1,130 @@
+DATA:
+  npoint: 2048                    # Number of points to sample
+  preload: True                   # Preload the dataset
+  use_normals: False               # Use normals as input features
+
+MODEL:
+  NAME: PCS
+  in_channels: 3                   # Input features per point (surface normals)
+  num_classes: 50                  # Number of parts In the Shape Net Part dataset
+  encoder_dim: 768                 # Dimension of encoder output
+  depth: 12                        # Number of layers in the transformer encoder
+  num_heads: 12                    # Number of attention heads in the transformer
+  mlp_ratio: 4.0                   # MLP ratio in transformer layers
+  qkv_bias: False                  # Whether to use bias in QKV projection
+  drop_rate: 0.1                   # Dropout rate for linear layers
+  attn_drop_rate: 0.1              # Dropout rate for attention layers
+  drop_path_rate: 0.1              # Stochastic depth rate
+  embed_args:                      
+    NAME: P3Embed                  # Positional encoding
+    num_groups: 256                # Number of groups for positional encoding
+    group_size: 32                 # Group size for positional encoding
+    embed_dim: 256                 # Embedding dimension
+    subsample: fps                 # Subsampling method
+    group: knn                     # Grouping method
+    feature_type: fj               # Feature extraction type
+  blocks: [ 1, 1, 1, 2, 1 ]        # Number of blocks in the  SPoTr decoder
+  strides: [ 1, 2, 2, 2, 2 ]       # Strides for each block in the SPoTr decoder
+  group_args:
+    NAME: 'ballquery'              # Grouping method
+    normalize_dp: True             # Normalize the distance by the number of points
+  conv_args: {}                    
+  norm_args:                       
+    norm: ln                       # Normalization method
+    eps: 1.0e-6                    # Epsilon for normalization
+  act_args:                        
+    act: leakyrelu                 # Activation function
+  posembed_norm_args: None         # Positional embedding normalization
+  num_points: [1024, 512, 256, 128] # Number of points for each decoder stage
+  fp_mlps:                         # MLP layers for feature propagation
+    - [256, 256, 512]
+    - [512, 512, 768]
+    - [768, 768, 1024]
+
+SOLVER:
+  # optimizer
+  batch_size: 16
+  learning_rate: 0.001
+  optimizer: AdamW
+  weight_decay: 1e-4        
+  layer_decay: 0.9
+  # scheduler
+  sched: multistep
+  epochs: 150
+  start_epoch: 1
+  decay_epochs: [30, 60]
+  decay_rate: 0.5
+  warmup_epochs: 0
+
+
+# Deafult parameters
+dist_url: tcp://localhost:8888
+dist_backend: 'nccl'
+multiprocessing_distributed: False
+ngpus_per_node: 1
+world_size: 1
+launcher: 'mp'
+local_rank: 0
+ckpt_dir: /home/appuser/checkpoints/PointCloudSegmentation/
+
+use_gpu: True
+seed: null 
+
+# ---------------------------------------------------------------------------- #
+# Training cfgs
+# ---------------------------------------------------------------------------- #
+ignore_index: null
+val_fn: validate
+deterministic: False
+sync_bn: False
+
+criterion_args:
+  NAME: CrossEntropy
+use_mask: False # in some datasets, requiring data mask in input
+
+grad_norm_clip: 1.0
+layer_decay: 0 # no layer decay by default
+
+step_per_update: 4 # accumulate gradient for 4 steps
+start_epoch: 1 
+sched_on_epoch: True
+
+# We support wandb for online results collection, please check their documentation for details: https://docs.wandb.ai/
+wandb:
+  use_wandb: False 
+
+use_amp: False
+# ---------------------------------------------------------------------------- #
+# Evaluation cfgs
+# ---------------------------------------------------------------------------- #
+use_voting: False 
+val_freq: 2
+
+# ---------------------------------------------------------------------------- #
+# io and misc
+# ---------------------------------------------------------------------------- #
+resume: False
+test: False 
+finetune: False 
+
+mode: test # set to test in evaluation only mode
+test_bs: 1
+visualize: True
+logname: null
+load_path: null
+
+print_freq: 50 
+save_freq: -1 # saving frequency for ckpt. -1 only saving the latest and the best.
+
+root_dir: log/
+pretrained_path: /home/appuser/checkpoints/PointCloudSegmentation/pcs_2024-12-08-03-11-51_ckpt_latest.pth
+
+
+# ---------------------------------------------------------------------------- #
+# data
+# ---------------------------------------------------------------------------- #
+datatransforms:
+  train: null
+  val: null
+feature_keys: pos
+

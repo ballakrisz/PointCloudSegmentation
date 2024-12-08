@@ -1,0 +1,10 @@
+# ninja log v5
+0	19949	1733415589360249851	/home/appuser/src/seg_models/SPoTr/openpoints/cpp/pointnet2_batch/build/temp.linux-x86_64-3.10/src/ball_query.o	28eaccbebc1d3e15
+0	20718	1733415590128253792	/home/appuser/src/seg_models/SPoTr/openpoints/cpp/pointnet2_batch/build/temp.linux-x86_64-3.10/src/group_points.o	d3cad1d9f67a097
+2	21025	1733415590444255415	/home/appuser/src/seg_models/SPoTr/openpoints/cpp/pointnet2_batch/build/temp.linux-x86_64-3.10/src/sampling.o	cca9c4afc2097cb5
+1	21112	1733415590528255846	/home/appuser/src/seg_models/SPoTr/openpoints/cpp/pointnet2_batch/build/temp.linux-x86_64-3.10/src/interpolate.o	2fd5d1fc15b37bca
+2	31543	1733415600948309326	/home/appuser/src/seg_models/SPoTr/openpoints/cpp/pointnet2_batch/build/temp.linux-x86_64-3.10/src/sampling_gpu.o	8c010146032fb6f3
+2	31815	1733415601220310722	/home/appuser/src/seg_models/SPoTr/openpoints/cpp/pointnet2_batch/build/temp.linux-x86_64-3.10/src/interpolate_gpu.o	6b4faaf4db6c144
+1	32661	1733415602068315074	/home/appuser/src/seg_models/SPoTr/openpoints/cpp/pointnet2_batch/build/temp.linux-x86_64-3.10/src/group_points_gpu.o	4033dd1c600f385c
+2	33099	1733415602504317312	/home/appuser/src/seg_models/SPoTr/openpoints/cpp/pointnet2_batch/build/temp.linux-x86_64-3.10/src/pointnet2_api.o	c06be5e683f77ab1
+0	34022	1733415603416321993	/home/appuser/src/seg_models/SPoTr/openpoints/cpp/pointnet2_batch/build/temp.linux-x86_64-3.10/src/ball_query_gpu.o	3a7d8c03ce6a0ba9
