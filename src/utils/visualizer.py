@@ -74,37 +74,46 @@ def visualize_points_plotly(point_cloud, part_label, object_label, acc, best_par
             name=f'Part {category}'
         ))
 
-    # Set axis labels
-    fig.update_layout(
-        scene=dict(
-            xaxis=dict(
-                title='X Label',
-                showgrid=False,  # Hide grid
-                zeroline=False,  # Hide zero line
-                showticklabels=False,  # Hide tick labels
-                visible=False
+    # Calculate axis limits (same as in Matplotlib code)
+        max_range = np.array([x.max() - x.min(), y.max() - y.min(), z.max() - z.min()]).max()
+        mid_x = (x.max() + x.min()) / 2
+        mid_y = (y.max() + y.min()) / 2
+        mid_z = (z.max() + z.min()) / 2
+
+        # Set axis labels and limits
+        fig.update_layout(
+            scene=dict(
+                xaxis=dict(
+                    title='X Label',
+                    range=[mid_x - max_range / 2, mid_x + max_range / 2],  # Set x-axis range
+                    showgrid=False,
+                    zeroline=False,
+                    showticklabels=False,
+                    visible=False
+                ),
+                yaxis=dict(
+                    title='Y Label',
+                    range=[mid_y - max_range / 2, mid_y + max_range / 2],  # Set y-axis range
+                    showgrid=False,
+                    zeroline=False,
+                    showticklabels=False,
+                    visible=False
+                ),
+                zaxis=dict(
+                    title='Z Label',
+                    range=[mid_z - max_range / 2, mid_z + max_range / 2],  # Set z-axis range
+                    showgrid=False,
+                    zeroline=False,
+                    showticklabels=False,
+                    visible=False
+                ),
             ),
-            yaxis=dict(
-                title='Y Label',
-                showgrid=False,  # Hide grid
-                zeroline=False,  # Hide zero line
-                showticklabels=False,  # Hide tick labels
-                visible=False
-            ),
-            zaxis=dict(
-                title='Z Label',
-                showgrid=False,  # Hide grid
-                zeroline=False,  # Hide zero line
-                showticklabels=False, # Hide tick labels
-                visible=False
-            ),
-        ),
-        title=f'{object_label}<br>Accuracy: {acc}<br>Best part iou: {best_part_iou}<br>Worst part iou: {worst_part_iou}<br>Avg part iou: {avg_part_iou}',
-        title_x=0.5,  # Center title horizontally
-        title_y=0.95,  # Position title vertically
-        title_font=dict(size=18, color='black'),  # Title font size and color
-        showlegend=False
-    )
+            title=f'{object_label}<br>Accuracy: {acc}<br>Best part iou: {best_part_iou}<br>Worst part iou: {worst_part_iou}<br>Avg part iou: {avg_part_iou}',
+            title_x=0.5,  # Center title horizontally
+            title_y=0.95,  # Position title vertically
+            title_font=dict(size=18, color='black'),  # Title font size and color
+            showlegend=False
+        )
 
     # Make sure the plot is interactive
     fig.update_traces(marker=dict(size=3, opacity=0.7))
