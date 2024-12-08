@@ -99,7 +99,7 @@ if [ "$mode" == "train" ]; then
         tensorboard_command="/home/appuser/.local/bin/tensorboard --logdir /home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/log/part_seg/pointnet2_part_seg_msg/logs --host 0.0.0.0 --port 6006"
     elif [[ "$network" == "pcs" ]]; then
         echo "Training PointCloudSegmentation model with a batch size of $batch_size"
-        script_path="/home/appuser/src/PointCloudSegmentation/main.py --cfg /home/appuser/src/seg_models/PointCloudSegmentation/cfg/pcs.yaml"
+        script_path="/home/appuser/src/seg_models/PointCloudSegmentation/main.py --cfg /home/appuser/src/seg_models/PointCloudSegmentation/cfg/pcs.yaml"
         tensorboard_command="/home/appuser/.local/bin/tensorboard --logdir /home/appuser/src/seg_models/PointCloudSegmentation/logs --host 0.0.0.0 --port 6006"
     else
         echo "Invalid network architecture. Please provide 'pointnet' or 'pcs'."
