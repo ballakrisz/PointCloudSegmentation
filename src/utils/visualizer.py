@@ -62,6 +62,9 @@ def visualize_points(point_cloud, part_label, object_label, acc, best_part_iou, 
         object_label = object_label
         label_range = OBJECT_PART_LABEL_RANGE[object_label]
         idx = max(label_range) - category 
+        # If the part labels is not part of the object, set it to red
+        if idx not in PART_LABEL_COLORS:
+            idx = 5
         ax.scatter(group[:,0], group[:,1], group[:,2], c=PART_LABEL_COLORS[idx], marker='o')
 
     # Set labels
