@@ -81,5 +81,6 @@ def visualize_points(point_cloud, part_label, object_label, acc, best_part_iou, 
     ax.set_zlim(mid_z - max_range/2, mid_z + max_range/2)
     plt.title(f'{object_label}\n Accuracy: {acc}\n Best part iou: {best_part_iou}\n Worst part iou: {worst_part_iou}\n Avg part iou: {avg_part_iou}')
     plt.axis('off')
-    fig.canvas.mpl_connect('key_press_event', on_key)
-    plt.show()
+    return fig
+    # fig.canvas.mpl_connect('key_press_event', on_key)
+    # plt.show()
