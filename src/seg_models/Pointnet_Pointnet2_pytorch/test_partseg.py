@@ -93,7 +93,7 @@ def main(args):
     # TEST_DATASET = PartNormalDataset(root=root, npoints=args.num_point, split='test', normal_channel=args.normal)
     # testDataLoader = torch.utils.data.DataLoader(TEST_DATASET, batch_size=args.batch_size, shuffle=False, num_workers=4)
     TEST_DATASET = ShapeNetSem(split='test', preload=True, use_normals=args.normal)
-    testDataLoader = torch.utils.data.DataLoader(TEST_DATASET, batch_size=args.batch_size, shuffle=False)
+    testDataLoader = torch.utils.data.DataLoader(TEST_DATASET, batch_size=args.batch_size, shuffle=True)
     log_string("The number of test data is: %d" % len(TEST_DATASET))
     num_classes = 16
     num_part = 50
