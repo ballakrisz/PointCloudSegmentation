@@ -11,7 +11,7 @@ print_usage() {
     echo "  test: Test the model"
     echo "  batch_size: (Optional) Batch size for training or testing (default: 32 for train, 1 for test)"
     echo "  use_pretrained: (Optional) Use pretrained model or not (default: false)"
-    echo "  network: (Optional) Network architecture to use (default: pointnet)"
+    echo "  model: (Optional) Network architecture to use (default: pointnet)"
 }
 
 invalidArgument()
@@ -57,7 +57,7 @@ while [[ "$#" -gt 0 ]]; do
             use_pretrained=false
             fi
             ;;
-        --network)
+        --model)
             if [[ -n "$2" && "$2" != -* ]]; then
             network="$2"; shift
             else

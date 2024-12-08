@@ -196,8 +196,8 @@ def main(args):
     MOMENTUM_DECCAY_STEP = args.step_size
 
     global_epoch = 0
-
-    for epoch in range(start_epoch, args.epoch):
+    print_freq = 50
+    for i,epoch in tqdm(enumerate(range(start_epoch, args.epoch)), total=start_epoch - args.epoch):
         mean_correct = []
 
         log_string('Epoch %d (%d/%s):' % (global_epoch + 1, epoch + 1, args.epoch))
@@ -214,7 +214,9 @@ def main(args):
         classifier = classifier.train()
 
         '''learning one epoch'''
-        for i, (points, label, target) in enumerate(trainDataLoader):
+        pbar = tqdm(enumerate(trainDataLoader), total=trainDataLoader.__len__())
+        running_loss = 0.0
+        for i, (points, label, target) in pbar:
             optimizer.zero_grad()
 
             points = points.data.numpy()
@@ -232,8 +234,13 @@ def main(args):
             correct = pred_choice.eq(target.data).cpu().sum()
             mean_correct.append(correct.item() / (args.batch_size * args.npoint))
             loss = criterion(seg_pred, target, trans_feat)
+            running_loss += loss.item()
             loss.backward()
             optimizer.step()
+            if i % print_freq:
+                pbar.set_description(f"Train Epoch [{epoch}/{args.epoch}] "
+                            f"Loss {running_loss/i:.3f} "
+                            )
 
         train_instance_acc = np.mean(mean_correct)
         log_string('Train accuracy is: %.5f' % train_instance_acc)
