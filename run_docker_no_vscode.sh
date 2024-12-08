@@ -112,21 +112,7 @@ if [ "$mode" == "train" ]; then
     fi
     echo "Script is $script_path"
 elif [ "$mode" == "test" ]; then
-
-    if [[ "$network" == "pointnet" ]]; then
-        if [ -n "$batch_size" ]; then
-            if ! [[ $batch_size =~ ^[0-9]+$ ]]; then
-                echo "Invalid batch size. Please provide a valid number."
-                print_usage
-                exit 1
-            fi
-            echo "Evaluation on the whole test dataset with a batch size of $batch_size"
-        fi
-        script_path="/home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/test_partseg.py --batch_size $batch_size"
-    elif [[ "$network" == "pcs" ]]; then
-        script_path="/home/appuser/src/utils/inferenceUI.py"
-    fi
-
+    script_path="/home/appuser/src/utils/inferenceUI.py"
     tensorboard_command="echo 'No tensorboard for testing.'"
 else
     echo "Invalid argument."
