@@ -69,11 +69,11 @@ USER appuser
 RUN unzip shapenetcore_partanno_segmentation_benchmark_v0_normal.zip && \
     rm shapenetcore_partanno_segmentation_benchmark_v0_normal.zip
 
-# copy some c++ code and compile it, then delete a src folder as it will be added as a volume later
-USER root
-COPY ./src /home/appuser/src
-RUN cd /home/appuser/src && python setup.py build_ext --inplace --user
-RUN rm -r /home/appuser/src
+# # copy some c++ code and compile it, then delete a src folder as it will be added as a volume later
+# USER root
+# COPY ./src /home/appuser/src
+# RUN cd /home/appuser/src/seg_models/PointCloudSegmentation/openpoints/building_blocks/cpp/pointnet2_batch && python setup.py install --user
+# RUN rm -r /home/appuser/src
 
 # copy the requirements.txt into the image
 USER root
