@@ -1,6 +1,7 @@
 from torch.utils.data import Dataset
 import json
 import numpy as np
+import torch
 # from pympler import asizeof
 
 SYNSET_DICT = {
@@ -32,7 +33,7 @@ def normalize(pc):
     return pc
 
 class ShapeNetSem(Dataset):
-    def __init__(self,npoints = 2500, split = 'test', preload=False, use_normals=False) -> None:
+    def __init__(self,npoints = 2500, split = 'test', preload=False, use_normals=False, transforms = None) -> None:
         """
         Initialize the LoadData class.
 
@@ -45,7 +46,9 @@ class ShapeNetSem(Dataset):
         self.preload = preload
         self.npoints = npoints
         self.use_normals = use_normals
+        self.transforms = transforms
         self.catfile = "/home/appuser/shapenetcore_partanno_segmentation_benchmark_v0_normal/synsetoffset2category.txt"
+        self.num_classes = 16
         self.cat = {}
 
         with open(self.catfile, 'r') as f:
@@ -95,10 +98,12 @@ class ShapeNetSem(Dataset):
             npz_data.close()
         
         # if using normals, concatenate it to the point cloud
+        features = None
         if self.use_normals:
             pcl = np.concatenate((data['point_cloud'], data['surface_normal']), axis=1)
         else:
             pcl = data['point_cloud']
+            features = data['surface_normal']
 
         # normalize the point cloud
         pcl[:, 0:3] = normalize(pcl[:, 0:3])
@@ -106,14 +111,22 @@ class ShapeNetSem(Dataset):
         # Randomly sample npoints from the point cloud --> same techinque as in the PointNet++ paper
         choice = np.random.choice(len(pcl), self.npoints, replace=True)
         pcl = pcl[choice, :]
+        if features is not None:
+            features = features[choice, :]
         point_labels = data['part_label'][choice]
         point_labels = np.array([point_labels]).astype(np.int32).squeeze()
 
         # extract the object label for class-wise performrance analysis
         object_class = data['object_label']
-        object_label = np.array([self.classes[object_class]]).astype(np.int32)
+        object_label = np.array([self.classes[object_class]]).astype(np.int64)
 
-        return pcl, object_label, point_labels
+
+        if self.transforms:
+            pcl = torch.from_numpy(pcl).float()
+            for transform in self.transforms:
+                pcl = transform(pcl)
+
+        return pcl, features, object_label, point_labels
         
     def prepare_data(self):
         if self.split == 'train':
