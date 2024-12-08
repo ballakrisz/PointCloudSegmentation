@@ -1,8 +1,12 @@
 import torch.optim as optim
 import torch.nn as nn
 import copy
-from openpoints.utils import registry
 from ..scheduler import MultiStepLRScheduler
+
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parents[1]))  # Adds `src` to path
+from seg_models.PointCloudSegmentation.openpoints.utils import registry
 MODELS = registry.Registry('models')
 
 
