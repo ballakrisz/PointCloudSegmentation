@@ -7,3 +7,8 @@ onnx==1.16.2
 onnxruntime-gpu==1.18.0
 opencv-python==4.10.0.84
 tensorboard==2.18.0
+multimethod==1.7
+termcolor==1.1.0
+shortuuid==1.0.13
+easydict==1.9
+einops==0.8.0
