@@ -5,6 +5,9 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[4]))  # Adds `src` to path
 from utils.visualizer import visualize_points
+import seaborn as sns
+import matplotlib.pyplot as plt
+from collections import Counter
 
 OBJECT_PART_LABEL_RANGE = {
     'Airplane': list(range(4)),
@@ -26,6 +29,26 @@ OBJECT_PART_LABEL_RANGE = {
 }
 
 
+class_to_label = {
+    'Airplane': 0,
+    'Bag': 1,
+    'Cap': 2,
+    'Car': 3,
+    'Chair': 4,
+    'Earphone': 5,
+    'Guitar': 6,
+    'Knife': 7,
+    'Lamp': 8,
+    'Laptop': 9,
+    'Motorbike': 10,
+    'Mug': 11,
+    'Pistol': 12,
+    'Rocket': 13,
+    'Skateboard': 14,
+    'Table': 15
+}
+
+
 class Validator:
     def __init__(self, model, val_loader, cfg, visualize=False):
         self.model = model
@@ -42,6 +65,9 @@ class Validator:
         total_correct_class = [0 for _ in range(num_part)]
         shape_ious = {cat: [] for cat in OBJECT_PART_LABEL_RANGE.keys()}
         seg_label_to_cat = {label: cat for cat, labels in OBJECT_PART_LABEL_RANGE.items() for label in labels}
+
+        class_wise_conf_matrix = np.zeros((16, 16))
+        plane_conf_matrix = np.zeros((5, 5))
 
         with torch.no_grad():
             for batch_id, data in tqdm(enumerate(self.val_loader), total=len(self.val_loader)):
@@ -82,10 +108,53 @@ class Validator:
                             part_ious.append(iou)
                     shape_ious[cat].append(np.mean(part_ious))
 
+                # for i in range(batch_size):
+                #     obj_cls = obj_class[i].item()
+                #     if obj_cls == 0:
+                #         for j in range(self.cfg.DATA.npoint):
+                #             part_true = labels[i, j]
+                #             part_pred = seg_pred[i, j]
+                #             if (part_pred > 3):
+                #                 part_pred = 4
+                #             plane_conf_matrix[part_true, part_pred] += 1
+
+                # for i in range(batch_size):
+                #     segp = seg_pred[i]  # Predicted labels for the current point cloud
+                #     segl = labels[i]    # Ground truth labels for the current point cloud
+                    
+                #     # Initialize a counter for predicted classes
+                #     predicted_class_counts = Counter()
+                    
+                #     # Loop through the predicted parts (segp) and ground truth parts (segl)
+                #     for point_idx in range(len(segl)):
+                #         predicted_class = segp[point_idx]   # Predicted label for the point
+                #         true_class = segl[point_idx]       # True label for the point
+                        
+                #         # Count how many times each predicted class occurs
+                #         predicted_class_counts[predicted_class] += 1
+                    
+                #     # Find the predicted class with the majority of points (highest count)
+                #     predicted_class = predicted_class_counts.most_common(1)[0][0]
+                    
+                #     # Map the predicted class to the object category
+                #     obj_pred = class_to_label[seg_label_to_cat[predicted_class]]  # Map the first label in the object to its category
+                #     class_wise_conf_matrix[obj_class[i].item(), obj_pred] += 1
+
+
                 if self.visualize:
                     curr_cat = seg_label_to_cat[labels[0, 0]]
                     curr_acc = correct / (batch_size * self.cfg.DATA.npoint)
                     visualize_points(xyz[0].cpu().numpy(), seg_pred[0], curr_cat, curr_acc, np.max(part_ious), np.min(part_ious), np.mean(part_ious))
+
+
+        # plt.figure(figsize=(20, 12))
+        # sns.heatmap(plane_conf_matrix, annot=True, cmap='Blues', 
+        #     xticklabels=['0', '1', '2', '3', 'other class'], yticklabels=['0', '1', '2', '3', 'other class'],
+        #     cbar=True, annot_kws={"size": 16})
+        # plt.title('Confusion Matrix')
+        # plt.xlabel('Predicted Part Labels')
+        # plt.ylabel('True Part Labels')
+        # plt.show()
 
         all_shape_ious = []
         for cat in shape_ious.keys():
