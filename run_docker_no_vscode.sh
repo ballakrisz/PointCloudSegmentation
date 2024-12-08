@@ -6,11 +6,12 @@ source ./misc/.params
 xhost + local:
 
 print_usage() {
-    echo "Usage: $0 --mode [train|test] [--batch-size batch_size] [--use-pretrained true|false]"
+    echo "Usage: $0 --mode [train|test] [--batch-size batch_size] [--use-pretrained true|false] [--network pointnet|pcs]"
     echo "  train: Train the model"
     echo "  test: Test the model"
     echo "  batch_size: (Optional) Batch size for training or testing (default: 32 for train, 1 for test)"
     echo "  use_pretrained: (Optional) Use pretrained model or not (default: false)"
+    echo "  network: (Optional) Network architecture to use (default: pointnet)"
 }
 
 invalidArgument()
@@ -22,6 +23,7 @@ invalidArgument()
 }
 
 use_pretrained=false
+network="pointnet"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -55,6 +57,14 @@ while [[ "$#" -gt 0 ]]; do
             use_pretrained=false
             fi
             ;;
+        --network)
+            if [[ -n "$2" && "$2" != -* ]]; then
+            network="$2"; shift
+            else
+            echo "Error: --network requires a value of pointnet or pcs."
+            exit 1
+            fi
+            ;;
         *) invalidArgument ;;
     esac
     shift
@@ -83,24 +93,40 @@ if [ "$mode" == "train" ]; then
         exit 1
     fi
 
-    script_path="/home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/train_partseg.py --batch_size $batch_size"
+    if [[ "$network" == "pointnet" ]]; then
+        echo "Training PointNet model with a batch size of $batch_size"
+        script_path="/home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/train_partseg.py --batch_size $batch_size"
+        tensorboard_command="/home/appuser/.local/bin/tensorboard --logdir /home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/log/part_seg/pointnet2_part_seg_msg/logs --host 0.0.0.0 --port 6006"
+    elif [[ "$network" == "pcs" ]]; then
+        echo "Training PointCloudSegmentation model with a batch size of $batch_size"
+        script_path="/home/appuser/src/PointCloudSegmentation/main.py --cfg /home/appuser/src/seg_models/PointCloudSegmentation/cfg/pcs.yaml"
+        tensorboard_command="/home/appuser/.local/bin/tensorboard --logdir /home/appuser/src/seg_models/PointCloudSegmentation/logs --host 0.0.0.0 --port 6006"
+    else
+        echo "Invalid network architecture. Please provide 'pointnet' or 'pcs'."
+        print_usage
+        exit 1
+    fi
+
     if [ "$use_pretrained" == "true" ]; then
         script_path+=" --use_pretrained"
     fi
     echo "Script is $script_path"
-    tensorboard_command="/home/appuser/.local/bin/tensorboard --logdir /home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/log/part_seg/pointnet2_part_seg_msg/logs --host 0.0.0.0 --port 6006"
 elif [ "$mode" == "test" ]; then
 
-    if [ -n "$batch_size" ]; then
-        if ! [[ $batch_size =~ ^[0-9]+$ ]]; then
-            echo "Invalid batch size. Please provide a valid number."
-            print_usage
-            exit 1
+    if [[ "$network" == "pointnet" ]]; then
+        if [ -n "$batch_size" ]; then
+            if ! [[ $batch_size =~ ^[0-9]+$ ]]; then
+                echo "Invalid batch size. Please provide a valid number."
+                print_usage
+                exit 1
+            fi
+            echo "Evaluation on the whole test dataset with a batch size of $batch_size"
         fi
-        echo "Evaluation on the whole test dataset with a batch size of $batch_size"
+        script_path="/home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/test_partseg.py --batch_size $batch_size"
+    elif [[ "$network" == "pcs" ]]; then
+        script_path="/home/appuser/src/utils/inferenceUI.py"
     fi
 
-    script_path="/home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/test_partseg.py --batch_size $batch_size"
     tensorboard_command="echo 'No tensorboard for testing.'"
 else
     echo "Invalid argument."
