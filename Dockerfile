@@ -52,13 +52,15 @@ RUN apt-get update && \
     sudo \
     nano \
     net-tools \
-    unzip
+    unzip \
+    cmake \
+    python3-dev
 
-# install gdown inside the container
+# install gdown
 USER root
 RUN pip install --no-cache-dir gdown
 
-# donwload tha dataset and my own pretrained PointNet++ from google drive
+# donwload tha dataset from google drive
 USER appuser
 RUN gdown https://drive.google.com/file/d/1CNSXU4naZmISacc5bOBx5FSxnYIkjUNW/view --fuzzy
 
@@ -66,6 +68,12 @@ RUN gdown https://drive.google.com/file/d/1CNSXU4naZmISacc5bOBx5FSxnYIkjUNW/view
 USER appuser
 RUN unzip shapenetcore_partanno_segmentation_benchmark_v0_normal.zip && \
     rm shapenetcore_partanno_segmentation_benchmark_v0_normal.zip
+
+# copy some c++ code and compile it, then delete a src folder as it will be added as a volume later
+USER root
+COPY ./src /home/appuser/src
+RUN cd /home/appuser/src && python setup.py build_ext --inplace --user
+RUN rm -r /home/appuser/src
 
 # copy the requirements.txt into the image
 USER root
