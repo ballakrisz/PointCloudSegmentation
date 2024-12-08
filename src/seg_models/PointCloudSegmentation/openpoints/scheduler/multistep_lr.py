@@ -8,7 +8,7 @@ from typing import List
 
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).resolve().parents[1]))  # Adds `src` to path
+sys.path.append(str(Path(__file__).resolve().parents[4]))  # Adds `src` to path
 from seg_models.PointCloudSegmentation.openpoints.scheduler.scheduler import Scheduler
 
 class MultiStepLRScheduler(Scheduler):
