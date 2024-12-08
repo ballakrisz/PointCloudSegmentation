@@ -116,9 +116,9 @@ def main(args):
     # valDataLoader = torch.utils.data.DataLoader(TEST_DATASET, batch_size=args.batch_size, shuffle=False, num_workers=10)
 
     #### Swapping datased to my own shapeNet dataset ####
-    TRAIN_DATASET = ShapeNetSem(split='train', preload=True, use_normals=args.normal)
+    TRAIN_DATASET = ShapeNetSem(split='train', preload=True, use_normals=args.normal, pointNet=True)
     trainDataLoader = torch.utils.data.DataLoader(TRAIN_DATASET, batch_size=args.batch_size, shuffle=True)
-    VAL_DATASET = ShapeNetSem(split='val', preload=True, use_normals=args.normal)
+    VAL_DATASET = ShapeNetSem(split='val', preload=True, use_normals=args.normal, pointNet=True)
     valDataLoader = torch.utils.data.DataLoader(VAL_DATASET, batch_size=args.batch_size, shuffle=False)
     log_string("The number of training data is: %d" % len(TRAIN_DATASET))
     log_string("The number of test data is: %d" % len(VAL_DATASET))

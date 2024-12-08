@@ -33,7 +33,7 @@ def normalize(pc):
     return pc
 
 class ShapeNetSem(Dataset):
-    def __init__(self,npoints = 2500, split = 'test', preload=False, use_normals=False, transforms = None) -> None:
+    def __init__(self,npoints = 2500, split = 'test', preload=False, use_normals=False, transforms = None, pointNet=False) -> None:
         """
         Initialize the LoadData class.
 
@@ -47,6 +47,7 @@ class ShapeNetSem(Dataset):
         self.npoints = npoints
         self.use_normals = use_normals
         self.transforms = transforms
+        self.pointNet = pointNet
         self.catfile = "/home/appuser/shapenetcore_partanno_segmentation_benchmark_v0_normal/synsetoffset2category.txt"
         self.num_classes = 16
         self.cat = {}
@@ -125,6 +126,9 @@ class ShapeNetSem(Dataset):
             pcl = torch.from_numpy(pcl).float()
             for transform in self.transforms:
                 pcl = transform(pcl)
+
+        if self.pointNet:
+            return pcl, object_label, point_labels
 
         return pcl, features, object_label, point_labels
         
