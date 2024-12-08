@@ -34,8 +34,6 @@ Note: For the deployment (finished project), a separate branch will be created w
 
 ## Building and running the project
 
-### Option 1: without the vscode IDE (recommended approach)
-
 Clone the repository 
 ```bash
 git clone https://github.com/ballakrisz/PointCloudSegmentation.git && \
@@ -54,7 +52,7 @@ Build the docker image
 
 Run the image with the following blueprint
 ```bash
-./run_docker_no_vscode.sh --mode ['train'|'test'] [--batch-size batch_size] [--use-pretrained 'true'|'false']
+./run_docker_no_vscode.sh --mode ['train'|'test'] [--batch-size batch_size] [--use-pretrained 'true'|'false'] [--model 'pointnet'|'pcs']
 ```
 #### IMPORTANT
 If at any point you cancel the script execution with ctrl+c, don't forget to stop the container by running
@@ -64,60 +62,28 @@ docker stop point_cloud_segmentation
 
 #### Testing
 To visualize the trained networks predictions run the following:  
-(You can go to the next image by pressing the right arrow on your keyboard, and exit by pressing the escape key)
 ```bash
-./run_docker_no_vscode.sh --mode test --batch-size 1
+./run_docker_no_vscode.sh --mode test
 ```
-To evaluate the model on the whole test dataset run the following where --batch-size should be a number other than 1 eg.:
-```bash
-./run_docker_no_vscode.sh --mode test --batch-size 12
-```
+After this, you can use the DrawIO interface at: http://127.0.0.1:7860/  
+You can select the model that you want to use (PointNet or PointCloudSegmentator - my own network).  
+Then select an image from the gallery that you would like to segment, and then click Run Inference. The output will be shown at the bottom, with the most important metrics as well.
 
 #### Training
-To train the network run the following command, where --batch-size should be as big as your PC can handle (or what you prefer), the --use-pretrained should be either 'true' or 'false'. Example with batch size of 32 and starting from scratch:
+To train the networks run the following command, where --batch-size should be as big as your PC can handle (or what you prefer), the --use-pretrained should be either 'true' or 'false'. Example with batch size of 32 and starting from scratch:
 ```bash
-./run_docker_no_vscode.sh --mode train --batch-size 32 --use-pretrained false
+./run_docker_no_vscode.sh --mode train --batch-size 32 --model pointnet
+```
+If you want to train the PCS network run the following command (the hyperparameters are adjustable in the seg_models/PointCloudSegmentator/cfg/pcs.yaml file)
+```bash
+./run_docker_no_vscode.sh --mode train --model pcs
 ```
 After this, you can inspect the training in Tensorboard by opening the following url in your browser:   
 http://localhost:6006/
-### Option 2: using vscode (only recommended if you want to develop the code)
-
-Clone the repository 
-```bash
-git clone https://github.com/ballakrisz/PointCloudSegmentation.git && \
-cd PointCloudSegmentation
-```
-
-Make a copy of the misc/.params.example file and name it .params and fill it out according to your file paths, make sure the ***use_vscode='true'***
-```bash
-cp misc/.params.example misc/.params
-```
-
-Build the docker image
-```bash
-./build_docker.sh
-```
-
-Run the image
-```bash
-./run_docker.sh
-```
-
-Attach a vscdoe server to the running container according to the top of the 'Files and folder structure' section and inside the container run  
-#### Testing 
-```bash
-python3 /home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/test_partseg.py
-```
-
-#### Training
-```bash
-python3 /home/appuser/src/seg_models/Pointnet_Pointnet2_pytorch/train_partseg.py
-```
 ## Baseline model
-My baseline model of choice is the PointNet++ architecture because my project focuses on the recent uprising of transformer-based approaches, therefore in the last milestone I will incrementally develop a transformer-based part segmentator with hopes of significantly outpreforming the baseline PointNet++ model.  
+My baseline model of choice is the PointNet++ architecture because my project focuses on the recent uprising of transformer-based approaches, therefore in the last milestone I will incrementally develop a transformer-based part segmentator with hopes of outpreforming the PointNet++ model.  
 The important metrics during training were as follow:  
 ![Local Image](training_metrics/PointNet++/train_loss.png)
-
 ![Local Image](training_metrics/PointNet++/test_acc.png)
 ![Local Image](training_metrics/PointNet++/test_class_iou.png)
 ![Local Image](training_metrics/PointNet++/test_instance_iou.png)  
@@ -232,6 +198,124 @@ The evaluation on the dest dataset resulted in the following values:
 
 </div>
 
+## My own model
+For the details of my model and its design choices please refer to the Documentation.  
+Though I couldn't manage to overperform the original PointNet++ Implementation, The results are quite close and with more data (transformer are more likely to benefit from it) and more time for hyperparameter optimization (training just one iteration is almost 16 hours) I belive it has the capability to outperform the PointNet++.  
+The important metrics during training:
+![Local Image](training_metrics/PointCloudSegmentation/pcs_loss.png)
+![Local Image](training_metrics/PointCloudSegmentation/pcs_acc.png)
+![Local Image](training_metrics/PointCloudSegmentation/pcs_class_miou.png)
+![Local Image](training_metrics/PointCloudSegmentation/pcs_ins_miou.png)  
+The evaluation on the dest dataset resulted in the following values:
+<div align="center">
+
+<div style="display: flex; justify-content: space-around;">
+<table style="margin-right: 20px;">
+    <thead>
+        <tr>
+            <th>Class</th>
+            <th>mIoU</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Airplane</td>
+            <td>0.782713</td>
+        </tr>
+        <tr>
+            <td>Bag</td>
+            <td>0.622064</td>
+        </tr>
+        <tr>
+            <td>Cap</td>
+            <td>0.808636</td>
+        </tr>
+        <tr>
+            <td>Car</td>
+            <td>0.696074</td>
+        </tr>
+        <tr>
+            <td>Chair</td>
+            <td>0.881143</td>
+        </tr>
+        <tr>
+            <td>Earphone</td>
+            <td>0.708238</td>
+        </tr>
+        <tr>
+            <td>Guitar</td>
+            <td>0.892955</td>
+        </tr>
+        <tr>
+            <td>Knife</td>
+            <td>0.804441</td>
+        </tr>
+        <tr>
+            <td>Lamp</td>
+            <td>0.805346</td>
+        </tr>
+        <tr>
+            <td>Laptop</td>
+            <td>0.950196</td>
+        </tr>
+        <tr>
+            <td>Motorbike</td>
+            <td>0.537377</td>
+        </tr>
+        <tr>
+            <td>Mug</td>
+            <td>0.881492</td>
+        </tr>
+        <tr>
+            <td>Pistol</td>
+            <td>0.760589</td>
+        </tr>
+        <tr>
+            <td>Rocket</td>
+            <td>0.423337</td>
+        </tr>
+        <tr>
+            <td>Skateboard</td>
+            <td>0.703905</td>
+        </tr>
+        <tr>
+            <td>Table</td>
+            <td>0.807279</td>
+        </tr>
+    </tbody>
+</table>
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Metric</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Accuracy</td>
+            <td>0.92543</td>
+        </tr>
+        <tr>
+            <td>Class avg accuracy</td>
+            <td>0.79973</td>
+        </tr>
+        <tr>
+            <td>Class avg mIoU</td>
+            <td>0.75842</td>
+        </tr>
+        <tr>
+            <td>Instance avg mIoU</td>
+            <td>0.81770</td>
+        </tr>
+    </tbody>
+</table>
+
+</div>
+
+</div>
 ## Related works
 
 | Model       | GitHub                                             | Article                                                |

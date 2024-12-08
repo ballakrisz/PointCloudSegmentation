@@ -6,7 +6,7 @@ source ./misc/.params
 xhost + local:
 
 print_usage() {
-    echo "Usage: $0 --mode [train|test] [--batch-size batch_size] [--use-pretrained true|false] [--network pointnet|pcs]"
+    echo "Usage: $0 --mode [train|test] [--batch-size batch_size] [--use-pretrained true|false] [--model pointnet|pcs]"
     echo "  train: Train the model"
     echo "  test: Test the model"
     echo "  batch_size: (Optional) Batch size for training or testing (default: 32 for train, 1 for test)"
