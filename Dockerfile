@@ -69,17 +69,8 @@ USER appuser
 RUN unzip shapenetcore_partanno_segmentation_benchmark_v0_normal.zip && \
     rm shapenetcore_partanno_segmentation_benchmark_v0_normal.zip
 
-# copy some c++ code and compile it, then delete a src folder as it will be added as a volume later
-# USER root
-# COPY ./src /home/appuser/src
-# ENV TORCH_CUDA_ARCH_LIST="6.0;6.1;7.0;8.0" \
-#     TORCH_NVCC_FLAGS="-Xfatbin -compress-all" \
-#     FORCE_CUDA="1"
-# RUN cd /home/appuser/src/seg_models/PointCloudSegmentation/openpoints/building_blocks/cpp/pointnet2_batch && python setup.py install --user
-# RUN mkdir -p /home/appuser/lib && \
-#     mv /home/appuser/src/seg_models/PointCloudSegmentation/openpoints/building_blocks/cpp/pointnet2_batch/*.so /home/appuser/lib
-# ENV PYTHONPATH="/home/appuser/lib"
-# RUN rm -r /home/appuser/src
+# Add c++ package .so to python path so sys.path recognizes it
+ENV PYTHONPATH="/home/appuser/src/seg_models/PointCloudSegmentation/openpoints/building_blocks/cpp/pointnet2_batch/build/lib.linux-x86_64-3.10:${PYTHONPATH}"
 
 # copy the requirements.txt into the image
 USER root
