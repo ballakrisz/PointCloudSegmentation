@@ -11,6 +11,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))  # Adds `src` to path
 from utils.visualizer import visualize_points
 from data.load_data import ShapeNetSem
 from seg_models.PointCloudSegmentation.UI_inference import InferenceUI
+from seg_models.Pointnet_Pointnet2_pytorch.pn_UI_inference import PnInferenceUI
 
 # Function to load the list of image files from the "photos" folder
 def load_image_gallery(photos_folder):
@@ -30,24 +31,17 @@ def show_warning(selection: gr.SelectData):
     #gr.Warning(f"Your choice is #{selection.index}, with image: {selection.value['image']['path']}!")
     #return current_pcl
 
-def perform_inference_on_point_cloud(pc_path):
-    data = dataset[int(pc_path)]
-    fig = inference_ui.inference(data)
-    # pcl, acc, best_part_iou, worst_part_iou, avg_part_iou = data
-    # xyz, features, obj_class, labels = data
-    # num_points = 100
-    # points = np.random.rand(num_points, 3)  # Shape (100, 3) -> 100 3D points
+def perform_inference_on_point_cloud(pc_path, model_choice):
+    # Run inference based on the model choice
+    if model_choice == "PointNet":
+        data = pn_dataset[int(pc_path)]
+        fig = pn_inference_ui.inference(data)
+    else:
+        data = dataset[int(pc_path)]
+        fig = inference_ui.inference(data)
 
-    # # Create a matplotlib figure for 3D plotting
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111, projection='3d')
-    # ax.scatter(points[:, 0], points[:, 1], points[:, 2], c='r', marker='o')
-    # ax.set_xlabel('X')
-    # ax.set_ylabel('Y')
-    # ax.set_zlabel('Z')
-    # ax.set_axis_off()
+    return fig  # Return the plotly figure
 
-    return fig  # Return the matplotlib figure
 
 
 
@@ -60,11 +54,21 @@ dataset = ShapeNetSem(
     preload=False, 
     use_normals=False,
 )
+pn_dataset = ShapeNetSem(
+    npoints=2500, 
+    split='test', 
+    preload=False, 
+    use_normals=True,
+    pointNet=True
+)
 inference_ui = InferenceUI()
+pn_inference_ui = PnInferenceUI()
 
 current_pcl = None
 result_point_cloud = None
 with gr.Blocks() as demo:
+    model_selector = gr.Dropdown(choices=["PointNet", "pcl"], label="Select Model", value="PointNet")
+
     gallery = gr.Gallery(image_files)
 
     # Actions
@@ -82,7 +86,7 @@ with gr.Blocks() as demo:
 
     point_cloud_button.click(
         fn=perform_inference_on_point_cloud,
-        inputs=selected_image,
+        inputs=[selected_image, model_selector],
         outputs=result_point_cloud_plot
     )
 

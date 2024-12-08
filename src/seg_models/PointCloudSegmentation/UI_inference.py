@@ -3,7 +3,7 @@ import numpy as np
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[2]))  # Adds `src` to path
-from utils.visualizer import visualize_points
+from utils.visualizer import visualize_points, visualize_points_plotly
 from seg_models.PointCloudSegmentation.openpoints.building_blocks.build import build_model_from_cfg
 from seg_models.PointCloudSegmentation.openpoints.utils import EasyConfig, load_checkpoint
 from seg_models.PointCloudSegmentation.openpoints.building_blocks.segmentation.pcs import PCS
@@ -73,4 +73,4 @@ class InferenceUI():
                         part_ious.append(iou)
             curr_cat = seg_label_to_cat[labels[0, 0]]
             curr_acc = correct / (batch_size * 2048)
-            return visualize_points(xyz[0].cpu().numpy(), seg_pred[0], curr_cat, curr_acc, np.max(part_ious), np.min(part_ious), np.mean(part_ious))
+            return visualize_points_plotly(xyz[0].cpu().numpy(), seg_pred[0], curr_cat, curr_acc, np.max(part_ious), np.min(part_ious), np.mean(part_ious))

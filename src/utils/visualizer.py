@@ -6,6 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import numpy as np 
 import sys
+import plotly.graph_objects as go
 
 OBJECT_PART_LABEL_RANGE = {
     'Airplane': list(range(4)),
@@ -41,8 +42,76 @@ def on_key(event):
     elif event.key == 'right':
         plt.close()
 
+def visualize_points_plotly(point_cloud, part_label, object_label, acc, best_part_iou, worst_part_iou, avg_part_iou, pointnet=False):
+    x = point_cloud[:, 0]
+    y = point_cloud[:, 1]
+    z = point_cloud[:, 2]
 
-def visualize_points(point_cloud, part_label, object_label, acc, best_part_iou, worst_part_iou, avg_part_iou):
+    # Create a DataFrame from point cloud and part labels
+    ss = np.array([x, y, z, part_label]).transpose(1, 0)
+    df = pd.DataFrame(ss, columns=['x', 'y', 'z', 'part_label'])
+    grouped = df.groupby('part_label')
+    grouped_data = {category: group[['x', 'y', 'z']].values for category, group in grouped}
+    
+    # Create Plotly figure
+    fig = go.Figure()
+
+    # Plot each group with its corresponding color
+    for category, group in grouped_data.items():
+        label_range = OBJECT_PART_LABEL_RANGE[object_label]
+        idx = max(label_range) - category 
+        
+        # If the part labels are not part of the object, set it to red
+        if idx not in PART_LABEL_COLORS:
+            idx = 5  # Default to red or another color
+
+        fig.add_trace(go.Scatter3d(
+            x=group[:, 0],
+            y=group[:, 1],
+            z=group[:, 2],
+            mode='markers',
+            marker=dict(size=2, color=PART_LABEL_COLORS[idx], opacity=0.8),
+            name=f'Part {category}'
+        ))
+
+    # Set axis labels
+    fig.update_layout(
+        scene=dict(
+            xaxis=dict(
+                title='X Label',
+                showgrid=False,  # Hide grid
+                zeroline=False,  # Hide zero line
+                showticklabels=False,  # Hide tick labels
+                visible=False
+            ),
+            yaxis=dict(
+                title='Y Label',
+                showgrid=False,  # Hide grid
+                zeroline=False,  # Hide zero line
+                showticklabels=False,  # Hide tick labels
+                visible=False
+            ),
+            zaxis=dict(
+                title='Z Label',
+                showgrid=False,  # Hide grid
+                zeroline=False,  # Hide zero line
+                showticklabels=False, # Hide tick labels
+                visible=False
+            ),
+        ),
+        title=f'{object_label}<br>Accuracy: {acc}<br>Best part iou: {best_part_iou}<br>Worst part iou: {worst_part_iou}<br>Avg part iou: {avg_part_iou}',
+        title_x=0.5,  # Center title horizontally
+        title_y=0.95,  # Position title vertically
+        title_font=dict(size=18, color='black'),  # Title font size and color
+        showlegend=False
+    )
+
+    # Make sure the plot is interactive
+    fig.update_traces(marker=dict(size=3, opacity=0.7))
+    
+    return fig
+
+def visualize_points(point_cloud, part_label, object_label, acc, best_part_iou, worst_part_iou, avg_part_iou, pointnet=False):
     x = point_cloud[:, 0]
     y = point_cloud[:, 1]
     z = point_cloud[:, 2]
@@ -81,6 +150,9 @@ def visualize_points(point_cloud, part_label, object_label, acc, best_part_iou, 
     ax.set_zlim(mid_z - max_range/2, mid_z + max_range/2)
     plt.title(f'{object_label}\n Accuracy: {acc}\n Best part iou: {best_part_iou}\n Worst part iou: {worst_part_iou}\n Avg part iou: {avg_part_iou}')
     plt.axis('off')
-    return fig
-    # fig.canvas.mpl_connect('key_press_event', on_key)
-    # plt.show()
+
+    if not pointnet:
+        return fig
+    else:
+        fig.canvas.mpl_connect('key_press_event', on_key)
+        plt.show()

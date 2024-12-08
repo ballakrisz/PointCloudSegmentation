@@ -181,7 +181,7 @@ def main(args):
                 best_part_iou = np.max(part_ious)
                 avg_part_iou = np.mean(part_ious)
                 acc = correct / (cur_batch_size * NUM_POINT)
-                visualize_points(pcl[0,:,:3], cur_pred_val[0], object_class, acc, best_part_iou, worst_part_iou, avg_part_iou)   
+                visualize_points(pcl[0,:,:3], cur_pred_val[0], object_class, acc, best_part_iou, worst_part_iou, avg_part_iou, True)   
 
         all_shape_ious = []
         for cat in shape_ious.keys():
