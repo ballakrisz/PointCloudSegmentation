@@ -8,7 +8,6 @@ source ./misc/.params
 HOST_USER_GROUP_ARG=$(id -g $USER)
 VSCODE_COMMIT_HASH=$(code --version | sed -n '2p')
 echo $VSCODE_COMMIT_HASH
-./misc/download_weights.sh
 
 #build the image
 docker build \
