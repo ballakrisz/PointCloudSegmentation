@@ -7,7 +7,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))  # Adds `src` to path
 from utils.visualizer import visualize_points
 from data.load_data import ShapeNetSem
 
-SAVE_PATH = "/home/appuser/pcl_projections/"
+SAVE_PATH = "/home/appuser/src/pcl_projections/"
 
 def rotation_matrix(yaw, pitch, roll):
     """
@@ -56,7 +56,7 @@ def draw_circle(image, center, radius, intensity=1):
             if (x - cx) ** 2 + (y - cy) ** 2 <= radius ** 2:
                 image[y, x] = intensity
 
-def project_point_cloud(point_cloud, yaw, pitch, roll, H, W, circle_radius=5):
+def project_point_cloud(point_cloud, yaw, pitch, roll, H, W, base_circle_radius=5):
     """
     Project a 3D point cloud onto a 2D image plane after rotating it.
     
@@ -91,15 +91,20 @@ def project_point_cloud(point_cloud, yaw, pitch, roll, H, W, circle_radius=5):
         H = int(W / aspect_ratio)
 
     # Normalize to fit within adjusted image bounds
+    max_ratio = max(W,H)
+    ratio = int(max_ratio/512)
     u = ((x - x.min()) / x_range * (W - 1)).astype(int)
     v = ((y - y.min()) / y_range * (H - 1)).astype(int)
+
+    avg_point_density = len(point_cloud) / (x_range * y_range)
+    circle_radius = max(1, int(base_circle_radius / (avg_point_density ** 0.5)))
 
     # Step 4: Create the image and plot points
     yellow = (0.7, 0.7, 0.5)  # Light yellow color in RGB
     image = np.ones((H, W, 3))  # White background
     for i in range(len(u)):
         if 0 <= u[i] < W and 0 <= v[i] < H:  # Ensure points fall within bounds
-            draw_circle(image, (u[i], v[i]), circle_radius, intensity=yellow)
+            draw_circle(image, (u[i], v[i]), ratio*base_circle_radius, intensity=yellow)
 
     return image
 
@@ -132,4 +137,6 @@ for i in range(len(dataset)):
     plt.ylabel("Y-axis")
     plt.axis('off')
     plt.savefig(f"{SAVE_PATH}/point_cloud_{i}.png")
+    if i == 50:
+        break
     #plt.show()
