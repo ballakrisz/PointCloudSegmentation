@@ -74,19 +74,12 @@ def visualize_points_plotly(point_cloud, part_label, object_label, acc, best_par
             name=f'Part {category}'
         ))
 
-    # Calculate axis limits (same as in Matplotlib code)
-    max_range = np.array([x.max() - x.min(), y.max() - y.min(), z.max() - z.min()]).max()
-    mid_x = (x.max() + x.min()) / 2
-    mid_y = (y.max() + y.min()) / 2
-    mid_z = (z.max() + z.min()) / 2
-
     # Set axis labels and limits
     fig.update_layout(
         scene=dict(
             aspectmode='data',
             xaxis=dict(
                 title='X Label',
-                #range=[mid_x - max_range / 2, mid_x + max_range / 2],  # Set x-axis range
                 showgrid=False,
                 zeroline=False,
                 showticklabels=False,
@@ -94,7 +87,6 @@ def visualize_points_plotly(point_cloud, part_label, object_label, acc, best_par
             ),
             yaxis=dict(
                 title='Y Label',
-                #range=[mid_y - max_range / 2, mid_y + max_range / 2],  # Set y-axis range
                 showgrid=False,
                 zeroline=False,
                 showticklabels=False,
@@ -102,7 +94,6 @@ def visualize_points_plotly(point_cloud, part_label, object_label, acc, best_par
             ),
             zaxis=dict(
                 title='Z Label',
-                #range=[mid_z - max_range / 2, mid_z + max_range / 2],  # Set z-axis range
                 showgrid=False,
                 zeroline=False,
                 showticklabels=False,
@@ -121,7 +112,12 @@ def visualize_points_plotly(point_cloud, part_label, object_label, acc, best_par
     
     return fig
 
+
 def visualize_points(point_cloud, part_label, object_label, acc, best_part_iou, worst_part_iou, avg_part_iou, pointnet=False):
+    """
+    @DEPRECATED
+    Plotply is better suited for 3D visualizations and gradio can display it as an actual 3D scene
+    """
     x = point_cloud[:, 0]
     y = point_cloud[:, 1]
     z = point_cloud[:, 2]
@@ -151,6 +147,7 @@ def visualize_points(point_cloud, part_label, object_label, acc, best_part_iou, 
     ax.set_ylabel('Y Label')
     ax.set_zlabel('Z Label')
 
+    # Set axis limits so the point cloud is not distorted
     max_range = np.array([x.max()-x.min(), y.max()-y.min(), z.max()-z.min()]).max()
     mid_x = (x.max() + x.min()) / 2
     mid_y = (y.max() + y.min()) / 2
@@ -161,8 +158,5 @@ def visualize_points(point_cloud, part_label, object_label, acc, best_part_iou, 
     plt.title(f'{object_label}\n Accuracy: {acc}\n Best part iou: {best_part_iou}\n Worst part iou: {worst_part_iou}\n Avg part iou: {avg_part_iou}')
     plt.axis('off')
 
-    if not pointnet:
-        return fig
-    else:
-        fig.canvas.mpl_connect('key_press_event', on_key)
-        plt.show()
+    fig.canvas.mpl_connect('key_press_event', on_key)
+    plt.show()

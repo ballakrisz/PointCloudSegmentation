@@ -52,6 +52,7 @@ class ShapeNetSem(Dataset):
         self.num_classes = 16
         self.cat = {}
 
+        # Load the categories synset file and convert them to a dictionary
         with open(self.catfile, 'r') as f:
             for line in f:
                 ls = line.strip().split()
@@ -63,7 +64,7 @@ class ShapeNetSem(Dataset):
         for i in self.cat.keys():
             self.classes[i] = self.classes_original[i]
         
-        # Download the data (if not already downloaded) --> caching is handled by kagglehub
+        # Path to the data
         self.download_path = "/home/appuser/shapenetcore_partanno_segmentation_benchmark_v0_normal/"
 
         # config files for the test, train and val splits
@@ -121,18 +122,21 @@ class ShapeNetSem(Dataset):
         object_class = data['object_label']
         object_label = np.array([self.classes[object_class]]).astype(np.int64)
 
-
+        # apply the fransform (if any)
         if self.transforms:
             pcl = torch.from_numpy(pcl).float()
             for transform in self.transforms:
                 pcl = transform(pcl)
 
+        # If using PointNet return the point cloud and the features (surface normals) concatenated
         if self.pointNet:
             return pcl, object_label, point_labels
 
+        # If using PCS return the point cloud and the features separately
         return pcl, features, object_label, point_labels
         
     def prepare_data(self):
+        # Determine the split
         if self.split == 'train':
             split=self.train_split
         elif self.split == 'test':
@@ -142,6 +146,7 @@ class ShapeNetSem(Dataset):
         else:
             raise ValueError('Invalid split')
 
+        # Open the config file for that split and load it
         with open(split, 'r') as file:
             files = json.load(file)
             for file in files:

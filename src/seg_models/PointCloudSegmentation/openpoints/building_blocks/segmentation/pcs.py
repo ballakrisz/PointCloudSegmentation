@@ -32,14 +32,20 @@ class PCS(nn.Module):
                  strides= [4, 4, 4, 4],
                  **kwargs
                  ):
-        """ViT for point cloud segmentation
+        """
+        ViT for point cloud segmentation, these parameters are specidied in the pcs.yaml file
 
         Args:
-            cfg (dict): configuration
+            in_channels (int): the number of input channels
+            num_classes (int): the number of classes
+            encoder_dim (int): the number of channels in the encoder
+            depth (int): the number of transformer blocks
         """
         super().__init__()
         if kwargs:
             logging.warning(f"kwargs: {kwargs} are not used in {__class__.__name__}")
+        
+        # Use the PointViT as the encoder
         self.encoder = PointViT(
             in_channels,
             encoder_dim, depth,
@@ -47,6 +53,7 @@ class PCS(nn.Module):
             drop_rate, attn_drop_rate, drop_path_rate,
             embed_args, norm_args, act_args, posembed_norm_args
         )
+        # Use the SPoTrPartDecoder as the decoder
         self.decoder = SPoTrPartDecoder(
             self.encoder.channel_list,
             act_args=act_args,
@@ -55,6 +62,7 @@ class PCS(nn.Module):
             num_classes=num_classes,
             **kwargs
         )
+        # Use the pcsHead as the head
         self.head = pcsHead(
             in_channels=2*in_channels,
             num_parts=num_classes, 
@@ -62,15 +70,22 @@ class PCS(nn.Module):
             )
         
     def get_num_layers(self):
+        """
+        Function to count the number of layers in the model
+        """
         return self.encoder.get_num_layers() + self.decoder.get_num_layers() + self.head.get_num_layers()
 
     def forward(self, xyz, features, class_labels):
+            # Extract feature and coordinate encodings at different scales
             p_list, f_list, f = self.encoder(xyz, features)
 
+            # decode the features and coordinates at different scales and embed them
             decoded_feaures = self.decoder(p_list, f_list, class_labels)
 
+            # Concatenate the decoded features with the input coordinates
             xyz_features = torch.cat([xyz, decoded_feaures.permute(0, 2, 1)], dim=2) # [B, N, C]
 
+            # Classify each point (part-wise) with the classification head
             logits = self.head(xyz_features)
 
             return logits

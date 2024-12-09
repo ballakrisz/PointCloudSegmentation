@@ -20,10 +20,23 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))  # Adds `src` to path
 from data.load_data import ShapeNetSem
 
 def train_one_epoch(model, train_loader, criterion, optimizer, epoch, cfg):
+    """
+    Train one epoch of the model
+
+    Args:
+        model: The model to train
+        train_loader: The dataloader for the training data
+        criterion: The loss function to use
+        optimizer: The optimizer to use
+        epoch: The current epoch
+        cfg: The config file
+    """
+    # setup loss meter and model to training mode
     loss_meter = AverageMeter()
-    model.train()  # set model to training mode
+    model.train() 
     pbar = tqdm(enumerate(train_loader), total=train_loader.__len__())
     num_iter = 0
+    # Process one epoch
     for idx, data in pbar:
         num_iter += 1
         batch_size = data[0].shape[0]
@@ -33,20 +46,26 @@ def train_one_epoch(model, train_loader, criterion, optimizer, epoch, cfg):
         features = features.cuda().permute(0,2,1).contiguous()
         labels = labels.cuda()
         obj_class = obj_class.cuda()
-
+        # Make predictions with the model
         logits = model(xyz, features, obj_class)
         logits = logits.transpose(1,2)
         labels = labels.long()
+        # Calculate the loss and backpropagate
         loss = criterion(logits, labels)
         loss.backward()
 
+        # Step the optimizer every cfg.step_per_update iterations 
+        # For my training it was every 4 iterations to accumilate the gradients to simulate bigger batch size
         if num_iter == cfg.step_per_update:
+            # Clip the gradients
             if cfg.get('grad_norm_clip') is not None:
                 torch.nn.utils.clip_grad_norm_(model.parameters(), cfg.grad_norm_clip)
             num_iter = 0
+            # Adjust the weights based on the gradients and zero them out
             optimizer.step()
             optimizer.zero_grad()
         
+        # Update the loss meter and the progress bar
         loss_meter.update(loss.item(), n=batch_size)
         if idx % cfg.print_freq:
             pbar.set_description(f"Train Epoch [{epoch}/{cfg.epochs}] "
@@ -56,12 +75,15 @@ def train_one_epoch(model, train_loader, criterion, optimizer, epoch, cfg):
     return train_loss
 
 def main(cfg):
+    # Build model based on cfg file
     model = build_model_from_cfg(cfg.MODEL).cuda()
 
+    # Transformations for the dataloader
     scaling_trasnform = PointCloudScaling()
     jitter_transform = PointCloudJitter()
     transforms = [scaling_trasnform, jitter_transform]
 
+    # create train datatset and dataloader
     train_dataset = ShapeNetSem(
         npoints=cfg.DATA.npoint, 
         split='train', 
@@ -75,6 +97,7 @@ def main(cfg):
         shuffle=True
         )
     
+    # create val and test datatset and dataloader
     val_dataset = ShapeNetSem(
         npoints=cfg.DATA.npoint, 
         split='val', 
@@ -87,6 +110,7 @@ def main(cfg):
         shuffle=False
         )
     
+    # create test datatset and dataloader
     test_dataset = ShapeNetSem(
         npoints=cfg.DATA.npoint, 
         split='test', 
@@ -99,8 +123,10 @@ def main(cfg):
         shuffle=False
         )
 
+    # using the Cross Entropy loss for training
     criterion = torch.nn.CrossEntropyLoss()
 
+    # If in test mode, load the model and run the validation on the test dataset (optionally visualize the results)
     if cfg.mode == 'test':
         state_dict = load_checkpoint(model, pretrained_path=cfg.pretrained_path)
         model.load_state_dict(state_dict['model'])
@@ -115,6 +141,7 @@ def main(cfg):
         print(metrics)
         return
     
+    # If resuming training, load the model, scheduler and optimizer state
     if cfg.resume:
         state_dict = load_checkpoint(model, pretrained_path=cfg.pretrained_path)
         model.load_state_dict(state_dict['model'])
@@ -126,37 +153,44 @@ def main(cfg):
     else:
         best_instance_miou, best_class_miou, best_class_macc, best_accuracy = 0. , 0. , 0., 0.
     
+    # Create the validator object
     validate_fn = Validator(
         model=model,
         val_loader=val_loader,
         cfg=cfg
     )
 
+    # Build the optimizer from the cfg
     optimizer = build_optimizer_from_cfg(
         cfg.SOLVER, 
         model=model
         )
     
+    # Build the scheduler from the cfg
     scheduler = build_scheduler_from_cfg(
         cfg.SOLVER, 
         optimizer=optimizer
         )
     
-    '''TENSORBOARD'''
+    # Initialize Tensorboard SummaryWriter with the log directory
     run_name = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")  
     tb_log_dir = f'/home/appuser/src/seg_models/PointCloudSegmentation/logs/{run_name}'
-    # Initialize SummaryWriter with the unique log directory
     writer = SummaryWriter(log_dir=tb_log_dir)
     
+    # Training loop
     for i, epoch in tqdm(enumerate(range(cfg.SOLVER.start_epoch, cfg.SOLVER.epochs)), total=cfg.SOLVER.epochs - cfg.SOLVER.start_epoch):
+        # Train one epoch
         train_loss = train_one_epoch(model, train_loader, criterion, optimizer, epoch, cfg)
         is_best = False
+        # validate every cfg.val_freq epochs (for my tranining it was every 2 epochs)
         if epoch % cfg.val_freq == 0:
             metrics = validate_fn()
+            # Extract the validation matrics
             val_ins_miou = metrics['instance_avg_iou']
             val_cls_miou = metrics['class_avg_iou']
             val_class_macc = metrics['class_avg_accuracy']
             val_accuracy = metrics['accuracy']
+            # Update the best metrics if the current metrics are better
             if val_ins_miou > best_instance_miou:
                 best_instance_miou = val_ins_miou
                 best_class_miou = val_cls_miou
@@ -165,20 +199,24 @@ def main(cfg):
                 best_epoch = epoch
                 is_best = True
                 print(f"Best instance mIoU: {best_instance_miou} at epoch {best_epoch}")
+            # Log the metrics to tensorboard
             if writer is not None:
                 writer.add_scalar('val_ins_miou', val_ins_miou, epoch)
                 writer.add_scalar('val_class_miou', val_cls_miou, epoch)
                 writer.add_scalar('val_class_macc', val_class_macc, epoch)
                 writer.add_scalar('val_accuracy', val_accuracy, epoch)
 
+        # Log the loss and learning rate to tensorboard
         lr = optimizer.param_groups[0]['lr']
         if writer is not None:
             writer.add_scalar('train_loss', train_loss, epoch)
             writer.add_scalar('lr', lr, epoch)
 
+        # Step the scheduler
         if cfg.sched_on_epoch:
             scheduler.step(epoch)
 
+        # Save the model checkpoint (It only saves the best model based on the instance mIoU)
         if cfg.rank == 0:
             save_checkpoint(cfg, model, epoch, optimizer, scheduler,
                             additioanl_dict={'ins_miou': best_instance_miou,
@@ -220,6 +258,7 @@ if __name__ == "__main__":
     cfg.root_dir = os.path.join(cfg.root_dir, cfg.task_name)
     cfg.is_training = cfg.mode not in ['test', 'testing', 'val', 'eval', 'evaluation']
 
+    # if testing, resume or val, resume the exp folder
     if cfg.mode in ['resume', 'test', 'val']:
         resume_exp_directory(cfg, pretrained_path=cfg.pretrained_path)
         cfg.wandb.tags = [cfg.mode]
