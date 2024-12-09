@@ -199,6 +199,20 @@ The evaluation on the dest dataset resulted in the following values:
 </div>
 
 ## My own model
+The training and inference scripts can be found at
+```bash
+src/seg_models/PointCloudSegmentation/*.py
+```
+The model and it's building blocks can be found at
+```bash
+src/seg_models/PointCloudSegmentation/openpoints/build.py
+src/seg_models/PointCloudSegmentation/openpoints/segmentation/*.py
+src/seg_models/PointCloudSegmentation/openpoints/backbone/pointvit.py, spotr.py
+```
+The validation script can be found at
+```bash
+src/seg_models/PointCloudSegmentation/openpoints/utils/validate.py
+```
 For the details of my model and its design choices please refer to the Documentation.  
 Though I couldn't manage to overperform the original PointNet++ Implementation, The results are quite close and with more data (transformer are more likely to benefit from it) and more time for hyperparameter optimization (training just one iteration is almost 16 hours) I belive it has the capability to outperform the PointNet++.  
 The important metrics during training:
