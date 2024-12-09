@@ -67,7 +67,7 @@ pn_inference_ui = PnInferenceUI()
 current_pcl = None
 result_point_cloud = None
 with gr.Blocks() as demo:
-    model_selector = gr.Dropdown(choices=["PointNet", "pcl"], label="Select Model", value="PointNet")
+    model_selector = gr.Dropdown(choices=["PointNet", "PCS"], label="Select Model", value="PointNet")
 
     gallery = gr.Gallery(image_files)
 
